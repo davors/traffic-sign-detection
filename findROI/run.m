@@ -105,6 +105,7 @@ numImages = numel(file_images);
 
 totalTime = 0;
 % Loop over all files with images
+Centroids=[];
 for image_i = 1:numImages
     file_image = file_images{image_i};
     imagePath = [folder_in, filesep, file_image];
@@ -112,7 +113,10 @@ for image_i = 1:numImages
     tic();
     % Run detector
     [BBtight, BBfull] = findROI(imagePath,histEqMethod,colConstMethod,thrColor,thrCC,roiNum,roiSize,show);
-        
+    
+    centroidsROI=BBfull(:,1:2)+BBfull(:,3:4)/2;
+    centroidsROI=reshape(centroidsROI',[1,6]);
+    allCentroidsROI(image_i,:)=centroidsROI;
     % Save
     %savePath = [folder_out,filesep,file_image];
     %imwrite(RGBcc, savePath, 'Quality',100);
