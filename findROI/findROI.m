@@ -1,4 +1,4 @@
-function [BBtight, BBfull, BWmerged, CC] = findROI(imageFile,heq,cc,thrColor,thrCC,K,roiSize,showResults)
+function [BBtight, BBfull, BWmerged, CC] = findROI(imageFile,heq,cc,thrColor,thrCC,K,roiSize,defaultRoi,showResults)
 
 if ~exist('heq','var') || isempty(heq)
     heq = 'local'; % 'global', 'local', 'none'
@@ -12,6 +12,12 @@ end
 if ~exist('roiSize','var') || isempty(roiSize)
     roiSize = [704,704]; % width and height of ROI rectangles
 end
+if ~exist('defaultRoi','var')
+    defaultRoi = []; % do not use default positions of ROIs
+end
+
+
+
 if ~exist('showResults','var') || isempty(showResults)
     showResults = 0; % show detected regions
 end
@@ -79,7 +85,7 @@ close(f3);
 %     ;
 % end
 
-[BBtight, BBfull, areaLeft] = coverWithRectangles(CC, K, roiSize);
+[BBtight, BBfull, areaLeft] = coverWithRectangles(CC, K, roiSize, defaultRoi);
 % see also: findClusters, placeBoxes
 
 if showResults

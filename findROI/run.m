@@ -26,6 +26,7 @@ histEqMethod = 'local'; % 'global', 'local', 'none'
 colConstMethod = 'gray'; % 'white', 'gray', 'none'
 roiSize = [704, 704];
 roiNum = 3;
+defaultRoi = [0, 200; 1920/2-roiSize(1)/2, 0; 1920-roiSize(1), 200]; % top-left positions of default ROIs; WARNING: works only for FHD images
 show = 1; % 0 - run silently
 
 % Color thresholds 
@@ -111,7 +112,7 @@ for image_i = 1:numImages
     
     tic();
     % Run detector
-    [BBtight, BBfull] = findROI(imagePath,histEqMethod,colConstMethod,thrColor,thrCC,roiNum,roiSize,show);
+    [BBtight, BBfull] = findROI(imagePath,histEqMethod,colConstMethod,thrColor,thrCC,roiNum,roiSize,defaultRoi,show);
         
     % Save
     %savePath = [folder_out,filesep,file_image];
