@@ -21,9 +21,6 @@ if ~exist('thr','var') || isempty(thr)
     thr.AspectMax = 1;
 end
 
-
-
-
 CCs = cell(1,numMasks);
 
 for m=1:numMasks
