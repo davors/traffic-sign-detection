@@ -1,4 +1,4 @@
-function [C,BB] = findROI(imageFile,heq,cc,K)
+function [BBtight, BBfull, BWmerged, CC] = findROI(imageFile,heq,cc,thrColor,thrCC,K,roiSize,showResults)
 
 if ~exist('heq','var') || isempty(heq)
     heq = 'local'; % 'global', 'local', 'none'
@@ -8,6 +8,12 @@ if ~exist('cc','var') || isempty(cc)
 end
 if ~exist('K','var') || isempty(K)
     K = 3; % number of final groups (ROIs)
+end
+if ~exist('roiSize','var') || isempty(roiSize)
+    roiSize = [704,704]; % width and height of ROI rectangles
+end
+if ~exist('showResults','var') || isempty(showResults)
+    showResults = 0; % show detected regions
 end
 
 
@@ -22,7 +28,7 @@ RGB = preprocessColorConstancy(RGB,cc);
 
 
 % HSV thresholding
-[BWmasks, colors]= thresholdsHSV(RGB);
+[BWmasks, colors]= thresholdsHSV(RGB,thrColor);
 % Take white and black out and process them separately
 whiteInd = strcmpi('white',colors);
 blackInd = strcmpi('black',colors);
@@ -58,42 +64,41 @@ BWfilt1 = any(BWmasks,3);
 
 
 
-
-
 % Connected components on masks + filtering
 % TODO: Should we make an exception for 'stable' colors like blue and yellow?
 % skipLayers = ismember(colors,{'blue'});
-thr = [];
-skipLayers = [];
-[BWmasks, BWmerged, CC, CCs] = filterConnComp(BWmasks,thr,skipLayers);
+[BWmasks, BWmerged, CC, CCs] = filterConnComp(BWmasks,thrCC);
 
-% f3=figure('units','normalized','OuterPosition',[0,0,1,1]);
-% imshow(imtile(cat(3,BWmasks,BWmerged,BWfilt1),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
-% waitforbuttonpress;
+f3=figure('units','normalized','OuterPosition',[0,0,1,1]);
+imshow(imtile(cat(3,BWmasks,BWmerged,BWfilt1),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
+waitforbuttonpress;
+close(f3);
 % try
 %     close([f1,f2,f3]);
 % catch
 %     ;
 % end
 
+[BBtight, BBfull, areaLeft] = coverWithRectangles(CC, K, roiSize);
+% see also: findClusters, placeBoxes
 
-% Place objects in K groups
-[labels, C, BB] = findClusters(CC,K);
-
-% Visualize
-L = labelmatrix(CC);
-figure();
-imshow(label2rgb(L));
-hold on;
-% Bounding boxes and centroids
-rects=placeBoxes(label2rgb(L), C, [704,704], 3)
-for k = 1: K
-    plot(C(k,1),C(k,2),'m+');
-    rectangle('Position',BB(k,:),'EdgeColor','g','LineWidth',2);
-    rectangle('Position',rects(k,:),'EdgeColor','b','LineWidth',2);
+if showResults
+    Kreal = size(BBtight,1);
+    % Visualize
+    L = labelmatrix(CC);
+    I = label2rgb(L,repmat([1 1 1],CC.NumObjects,1),'black');
+    Im_fused = imfuse(I,RGB,'blend');
+    figure('units','normalized','OuterPosition',[0 0 1 1]);
+    imshow(Im_fused, 'InitialMagnification','fit');
+    for k = 1: Kreal
+        rectangle('Position',BBtight(k,:),'EdgeColor','g','LineWidth',2);
+        rectangle('Position',BBfull(k,:),'EdgeColor','m','LineWidth',2);
+    end
+    title(sprintf('Objects covered with %d rectangle(s). Remained pixels: %d',Kreal,areaLeft));
+    waitforbuttonpress;
+    close;
 end
 
-%Place boxes
 
 
 
