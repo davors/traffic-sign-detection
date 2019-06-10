@@ -41,7 +41,7 @@ thrCC = struct();
 thrCC.AreaMin = 700;
 thrCC.AreaMax = 30000;
 % Extent filter (extent = area/(height*width))
-thrCC.ExtentMin = 0.75;
+thrCC.ExtentMin = 0.5;
 thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;

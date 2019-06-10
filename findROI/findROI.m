@@ -93,7 +93,8 @@ for k = 1: K
     rectangle('Position',rects(k,:),'EdgeColor','b','LineWidth',2);
 end
 
-%Place boxes
+
+
 
 
 
