@@ -1,4 +1,4 @@
-function run(file_images)
+function [allCentroidsROI]=run(file_images)
 % Pipeline for traffic signs detection and ROI extraction
 % file_images: - cell array of strings with filenames or
 %              - numeric array of image IDs or
