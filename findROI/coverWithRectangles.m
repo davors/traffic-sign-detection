@@ -1,4 +1,4 @@
-function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,K,sizeRect,defaultPos)
+function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,param)
 % Reference: https://stackoverflow.com/questions/32429311/finding-rectangle-position-that-makes-it-cover-maximum-points-in-2d-space
 %
 % defaultPos - top-left corners (K x 2) of default positions of K rectangles of
@@ -17,6 +17,10 @@ function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,K,sizeRect,def
 % rectangle width cover the span
 % Vertical step: find optimal top position that results in coverage with
 % maximum area
+
+K = param.num;
+sizeRect = param.size;
+defaultPos = param.default;
 
 if numel(sizeRect) == 1
     width = sizeRect;

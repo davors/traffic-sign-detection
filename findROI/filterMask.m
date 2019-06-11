@@ -1,4 +1,9 @@
 function BWmask = filterMask(BWmask, filters)
+% Available filters/operations: 
+% 'median': median filtering
+% 'gauss': gaussian filtering/blurring
+% 'close': morphological closing
+% 'fill': holes filling
 
 if ischar(filters)
     filters = {filters};

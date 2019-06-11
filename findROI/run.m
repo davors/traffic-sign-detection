@@ -20,75 +20,12 @@ format = 'jpg';
 folder_in = '../data/original';
 folder_out = '../data/results';
 
-%--------------------------------------------------------------------------
-% Parameters
-histEqMethod = 'local'; % 'global', 'local', 'none'
-colConstMethod = 'none'; % 'white', 'gray', 'none'
-roiSize = [704, 704];
-roiNum = 3;
-defaultRoi = [0, 200; 1920/2-roiSize(1)/2, 0; 1920-roiSize(1), 200]; % top-left positions of default ROIs; WARNING: works only for FHD images
+% Display intermediate results
 show = 1; % 0 - run silently
 
-% Color thresholds 
-thrColor.red.Hmin = 0.93;
-thrColor.red.Hmax = 0.03;
-thrColor.red.Smin = 0.50;
-thrColor.red.Smax = 1.00;
-thrColor.red.Vmin = 0.00; % before 0.2
-thrColor.red.Vmax = 1.00;
-
-thrColor.blue.Hmin = 0.52;
-thrColor.blue.Hmax = 0.70;
-thrColor.blue.Smin = 0.60;
-thrColor.blue.Smax = 1.00;
-thrColor.blue.Vmin = 0.20;
-thrColor.blue.Vmax = 1.00;
-
-thrColor.yellowDark.Hmin = 0.05;
-thrColor.yellowDark.Hmax = 0.13;
-thrColor.yellowDark.Smin = 0.64;
-thrColor.yellowDark.Smax = 1.00;
-thrColor.yellowDark.Vmin = 0.20;
-thrColor.yellowDark.Vmax = 1.00;
-
-thrColor.yellowLight.Hmin = 0.13;
-thrColor.yellowLight.Hmax = 0.18;
-thrColor.yellowLight.Smin = 0.64;
-thrColor.yellowLight.Smax = 1.00;
-thrColor.yellowLight.Vmin = 0.20;
-thrColor.yellowLight.Vmax = 1.00;
-
-thrColor.green.Hmin = 0.36;
-thrColor.green.Hmax = 0.50;
-thrColor.green.Smin = 0.50;
-thrColor.green.Smax = 1.00;
-thrColor.green.Vmin = 0.20;
-thrColor.green.Vmax = 1.00;
-
-thrColor.greenFluor.Hmin = 0.16;
-thrColor.greenFluor.Hmax = 0.22;
-thrColor.greenFluor.Smin = 0.70;
-thrColor.greenFluor.Smax = 1.00;
-thrColor.greenFluor.Vmin = 0.50;
-thrColor.greenFluor.Vmax = 1.00;
-
-thrColor.brown.Hmin = 0.00;
-thrColor.brown.Hmax = 0.08;
-thrColor.brown.Smin = 0.60;
-thrColor.brown.Smax = 1.00;
-thrColor.brown.Vmin = 0.20;
-thrColor.brown.Vmax = 1.00;
-
-% Connected components (blobs) thresholds
-% Size of an area we want to filter out (in pixels)
-thrCC.AreaMin = 300;
-thrCC.AreaMax = 230000;
-% Extent filter (extent = area/(height*width))
-thrCC.ExtentMin = 0.45;
-thrCC.ExtentMax = 1;
-% Aspect ratio (shorter/longer)
-thrCC.AspectMin = 0.16;
-thrCC.AspectMax = 1;
+%--------------------------------------------------------------------------
+% Load parameters configuration
+param = config();
 
 
 %--------------------------------------------------------------------------
@@ -105,7 +42,7 @@ end
 numImages = numel(file_images);
 
 totalTime = 0;
-allCentroidsROI = zeros(numImages,roiNum*2);
+allCentroidsROI = zeros(numImages,param.roi.num*2);
 % Loop over all files with images
 for image_i = 1:numImages
     file_image = file_images{image_i};
@@ -113,10 +50,10 @@ for image_i = 1:numImages
     
     tic();
     % Run detector
-    [BBtight, BBfull] = findROI(imagePath,histEqMethod,colConstMethod,thrColor,thrCC,roiNum,roiSize,defaultRoi,show);
-        
+    [~, BBfull] = findROI(imagePath,param,show);
+    
     centroidsROI=BBfull(:,1:2)+BBfull(:,3:4)/2;
-    centroidsROI=reshape(centroidsROI',[1,roiNum*2]);
+    centroidsROI=reshape(centroidsROI',[1,param.roi.num*2]);
     allCentroidsROI(image_i,:)=centroidsROI;
     
     % Save
