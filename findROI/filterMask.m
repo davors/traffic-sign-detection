@@ -15,6 +15,10 @@ numFilters = numel(filters);
 % Filters' parameters
 medianFiltSize = [3 3]; % default [3 3]
 gaussFiltSigma = 3; % default 0.5
+% Shape of a morphological structuring element for image dilation
+se_dilate = 'disk';
+% Size of a morphological structuring element for image dilation
+seSize_dilate = 9;
 % Shape of a morphological structuring element for image closing
 se_close = 'disk';
 % Size of a morphological structuring element for image closing
@@ -54,6 +58,15 @@ for m=1:numMasks
                 p = str2double(filterParam);
             end
             BWmask(:,:,m) = imgaussfilt(uint8(BWmask(:,:,m)), gaussFiltSigma);
+        
+        elseif strcmpi(filterName,'dilate')
+            if isempty(filterParam)
+                p = seSize_dilate;
+            else
+                p = str2double(filterParam);
+            end
+            se = strel(se_dilate,p);
+            BWmask(:,:,m) = imdilate(BWmask(:,:,m),se);
             
         elseif strcmpi(filterName,'close')
             if isempty(filterParam)

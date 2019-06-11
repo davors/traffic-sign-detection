@@ -1,8 +1,11 @@
-function [allCentroidsROI] = run(file_images)
+function [allCentroidsROI] = run(file_images,show)
 % Pipeline for traffic signs detection and ROI extraction
 % file_images: - cell array of strings with filenames or
 %              - numeric array of image IDs or
 %              - empty/notexistant to process all images in folder
+% show:  0 - do not display anything
+%        1 - display final results
+%        2 - display intermediate results
 
 if ~exist('file_images','var') || isempty(file_images)
     file_images = [];
@@ -15,13 +18,16 @@ elseif isnumeric(file_images)
     file_images = tmp;
 end
 
+if ~exist('show','var') || isempty(show)
+    show = 0;
+end
+
 % Specify folders for input/output
 format = 'jpg';
 folder_in = '../data/original';
 folder_out = '../data/results';
 
-% Display intermediate results
-show = 1; % 0 - run silently
+
 
 %--------------------------------------------------------------------------
 % Load parameters configuration

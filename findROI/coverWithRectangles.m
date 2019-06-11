@@ -41,12 +41,19 @@ numBlobs = CC.NumObjects;
 imHeight = CC.ImageSize(1);
 imWidth = CC.ImageSize(2);
 
+weightedMode = isfield(CC,'Weights');
+if weightedMode
+    weights = CC.Weights;
+else
+    weights = ones(1,numBlobs);
+end
+
 % Get bounding boxes and areas of blobs
 CCprops = regionprops(CC, {'BoundingBox','Area'});
 % Get bounding boxes of blobs in CC. They are in form [x y w h]
 BB = reshape([CCprops.BoundingBox],4,numBlobs)';
-% Add area to matrix of bounding boxes, so: [x y width height area]
-BB(:,5) = [CCprops.Area];
+% Add weighted area to matrix of bounding boxes, so: [x y width height area]
+BB(:,5) = [CCprops.Area].*weights;
 % Add an ID 
 BB(:,6) = 1:CC.NumObjects;
 

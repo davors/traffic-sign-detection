@@ -75,12 +75,13 @@ thrHSV.brown.Vmax = 1.00;
 param.colors.thrHSV = thrHSV;
 
 % Binary masks filtering
+%param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill','dilate_10'};
 param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
 
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
 thrCC=[];
-thrCC.AreaMin = 300;
+thrCC.AreaMin = 1000;
 thrCC.AreaMax = 230000;
 % Extent filter (extent = area/(height*width))
 thrCC.ExtentMin = 0.45;
