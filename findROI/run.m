@@ -23,7 +23,7 @@ folder_out = '../data/results';
 %--------------------------------------------------------------------------
 % Parameters
 histEqMethod = 'local'; % 'global', 'local', 'none'
-colConstMethod = 'gray'; % 'white', 'gray', 'none'
+colConstMethod = 'none'; % 'white', 'gray', 'none'
 roiSize = [704, 704];
 roiNum = 3;
 defaultRoi = [0, 200; 1920/2-roiSize(1)/2, 0; 1920-roiSize(1), 200]; % top-left positions of default ROIs; WARNING: works only for FHD images
@@ -34,7 +34,7 @@ thrColor.red.Hmin = 0.93;
 thrColor.red.Hmax = 0.03;
 thrColor.red.Smin = 0.50;
 thrColor.red.Smax = 1.00;
-thrColor.red.Vmin = 0.20;
+thrColor.red.Vmin = 0.00; % before 0.2
 thrColor.red.Vmax = 1.00;
 
 thrColor.blue.Hmin = 0.52;
@@ -59,7 +59,7 @@ thrColor.yellowLight.Vmin = 0.20;
 thrColor.yellowLight.Vmax = 1.00;
 
 thrColor.green.Hmin = 0.36;
-thrColor.green.Hmax = 0.47;
+thrColor.green.Hmax = 0.50;
 thrColor.green.Smin = 0.50;
 thrColor.green.Smax = 1.00;
 thrColor.green.Vmin = 0.20;
@@ -82,9 +82,9 @@ thrColor.brown.Vmax = 1.00;
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
 thrCC.AreaMin = 300;
-thrCC.AreaMax = 100000;
+thrCC.AreaMax = 230000;
 % Extent filter (extent = area/(height*width))
-thrCC.ExtentMin = 0.5;
+thrCC.ExtentMin = 0.45;
 thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;

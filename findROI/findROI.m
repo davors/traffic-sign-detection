@@ -46,10 +46,7 @@ blackMask = BWmasks(:,:,blackInd);
 BWmasks = BWmasks(:,:,colorInds);
 
 BW = any(BWmasks,3); % composite mask - for plotting only
-BWmasks_old_1 = BWmasks;
-%figure();
-%imshow(imtile(cat(3,BWmasks,BW),'BorderSize',10,'BackgroundColor','w'));
-
+BWmasks_old_1 = BWmasks; % layer masks - for plotting only
 
 % Filter masks
 % Available filters/operations: 
@@ -58,32 +55,22 @@ BWmasks_old_1 = BWmasks;
 % 'close': morphological closing
 % 'fill': holes filling
 [BWmasks] = filterMask(BWmasks, {'close_2','fill','gauss_3','close_7','fill'});
+BWmasks_old_2 = BWmasks;
 BWfilt1 = any(BWmasks,3);
-
-
-% f2=figure('units','normalized','OuterPosition',[0,0.5,0.2,0.3]);
-% imshow(RGB,'InitialMagnification','fit');
-% 
-% f1=figure('units','normalized','OuterPosition',[0,0,1,1]);
-% imshow(imtile(cat(3,BWmasks,BWfilt1,BWmasks_old_1,BW),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
-% text(0.4,1,strjoin(colors',', '),'Units','normalized','Color','g','Fontsize',14,'verticalalign','top');
 
 
 
 % Connected components on masks + filtering
-% TODO: Should we make an exception for 'stable' colors like blue and yellow?
-% skipLayers = ismember(colors,{'blue'});
 [BWmasks, BWmerged, CC, CCs] = filterConnComp(BWmasks,thrCC);
 
-f3=figure('units','normalized','OuterPosition',[0,0,1,1]);
-imshow(imtile(cat(3,BWmasks,BWmerged,BWfilt1),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
-waitforbuttonpress;
-close(f3);
-% try
-%     close([f1,f2,f3]);
-% catch
-%     ;
-% end
+if showResults
+    figure('units','normalized','OuterPosition',[0,0,1,1]);
+    imshow(imtile(cat(3,BWmasks_old_1,BW,BWmasks_old_2,BWfilt1,BWmasks,BWmerged),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
+    waitforbuttonpress;
+    close();
+end
+
+
 
 [BBtight, BBfull, areaLeft] = coverWithRectangles(CC, K, roiSize, defaultRoi);
 % see also: findClusters, placeBoxes
