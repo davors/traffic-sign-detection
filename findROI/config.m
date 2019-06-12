@@ -94,6 +94,9 @@ thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;
 thrCC.AspectMax = 1;
+% Area to squared perimeter ration
+thrCC.A2PSqMin = -Inf; %0.02;
+thrCC.A2PSqMax = Inf;
 
 param.colors.thrCC = thrCC;
 
@@ -128,9 +131,12 @@ thrCC = [];
 thrCC.AreaMin = 700;
 thrCC.AreaMax = 30000;
 % Extent filter (extent = area/(height*width))
-thrCC.ExtentMin = 0.5;
+thrCC.ExtentMin = 0.5; %0.5
 thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;
 thrCC.AspectMax = 1;
+% Area to squared perimeter ration
+thrCC.A2PSqMin = -Inf;%0.02;
+thrCC.A2PSqMax = Inf;
 param.white.thrCC = thrCC;

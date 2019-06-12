@@ -10,7 +10,7 @@ for m=1:numMasks
     cc = bwconncomp(BWmask(:,:,m));
     
     % Compute the area of each component:
-    stat = regionprops(cc, 'Area', 'Extent', 'BoundingBox');
+    stat = regionprops(cc, 'Area', 'Extent', 'BoundingBox','Perimeter');
     
     maskArea = ([stat.Area] >= thr.AreaMin) & ([stat.Area] <= thr.AreaMax);
     maskExtent = ([stat.Extent] >= thr.ExtentMin) & ([stat.Extent] <= thr.ExtentMax);
@@ -23,7 +23,10 @@ for m=1:numMasks
     bb_aspect(flipOver) = 1./bb_aspect(flipOver);
     maskAspect = (bb_aspect >= thr.AspectMin) & (bb_aspect <= thr.AspectMax);
     
-    mask = maskArea & maskExtent & maskAspect;
+    A2PSq = [stat.Area]./([stat.Perimeter].^2);
+    maskA2PSq = (A2PSq >= thr.A2PSqMin) & (A2PSq <= thr.A2PSqMax);
+    
+    mask = maskArea & maskExtent & maskAspect & maskA2PSq;
     
     filtCC = struct();
     filtCC.Connectivity = cc.Connectivity;
