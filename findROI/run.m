@@ -1,4 +1,4 @@
-function [allCentroidsROI] = run(file_images,show,saveOutputImage)
+function [BBoxes] = run(file_images,show,saveOutputImage)
 % Pipeline for traffic signs detection and ROI extraction
 % file_images: - cell array of strings with filenames or
 %              - numeric array of image IDs or
@@ -52,7 +52,6 @@ end
 numImages = numel(file_images);
 
 totalTime = 0;
-allCentroidsROI = zeros(numImages,param.roi.num*2);
 % Loop over all files with images
 for image_i = 1:numImages
     file_image = file_images{image_i};
@@ -62,9 +61,14 @@ for image_i = 1:numImages
     % Run detector
     [~, BBfull, BW] = findROI(imagePath,param,show);
     
-    centroidsROI=BBfull(:,1:2)+BBfull(:,3:4)/2;
-    centroidsROI=reshape(centroidsROI',[1,param.roi.num*2]);
-    allCentroidsROI(image_i,:)=centroidsROI;
+    BBox_image=[];
+    for b_i=1:size(BBfull,1)
+        BBox=bbox2points(BBfull(b_i,:));
+        BBox=reshape(BBox',[1,numel(BBox)]);
+        BBox_image=[BBox_image, BBox];
+    end
+    BBoxes{image_i}.BBox=BBox_image;
+    BBoxes{image_i}.id=image_ids(image_i);
     
     t = toc(ticID);
     totalTime = totalTime + t;
