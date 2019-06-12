@@ -1,5 +1,11 @@
-function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,K,sizeRect)
+function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,param)
 % Reference: https://stackoverflow.com/questions/32429311/finding-rectangle-position-that-makes-it-cover-maximum-points-in-2d-space
+%
+% defaultPos - top-left corners (K x 2) of default positions of K rectangles of
+% size sizeRect. When the algorithm covers all blobs with less than K
+% rectangles, use defaultPos to position remaining rectangles, so that
+% there are K rectangles.
+
 % TODO: naive optimistic initialization: 
 % place first rectangle so that the position of its
 % top-left corner is at top-left corner of top-left-most BB. Check if all
@@ -12,6 +18,10 @@ function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,K,sizeRect)
 % Vertical step: find optimal top position that results in coverage with
 % maximum area
 
+K = param.num;
+sizeRect = param.size;
+defaultPos = param.default;
+
 if numel(sizeRect) == 1
     width = sizeRect;
     height = sizeRect;
@@ -22,16 +32,28 @@ else
     error('sizeRect can contain 1 or 2 elements.');
 end
 
+if ~exist('defaultPos','var')
+    defaultPos = [];
+end
+
+
 numBlobs = CC.NumObjects;
 imHeight = CC.ImageSize(1);
 imWidth = CC.ImageSize(2);
+
+weightedMode = isfield(CC,'Weights');
+if weightedMode
+    weights = CC.Weights;
+else
+    weights = ones(1,numBlobs);
+end
 
 % Get bounding boxes and areas of blobs
 CCprops = regionprops(CC, {'BoundingBox','Area'});
 % Get bounding boxes of blobs in CC. They are in form [x y w h]
 BB = reshape([CCprops.BoundingBox],4,numBlobs)';
-% Add area to matrix of bounding boxes, so: [x y width height area]
-BB(:,5) = [CCprops.Area];
+% Add weighted area to matrix of bounding boxes, so: [x y width height area]
+BB(:,5) = [CCprops.Area].*weights;
 % Add an ID 
 BB(:,6) = 1:CC.NumObjects;
 
@@ -137,9 +159,33 @@ for k = 1:K
     end
 end
 
-% Keep only k rectangles (in case of premature exit)
-rectsTight = rectsTight(1:k,:);
-rectsFull = rectsFull(1:k,:);
+if k < K && ~isempty(defaultPos)
+    % Use rectangles on defaultPos to fill in K-k rectangles
+    % Get centres of k rectangles and also default ones
+    centresAlgX = rectsFull(1:k,1) + rectsFull(1:k,3)/2; 
+    centresAlgY = rectsFull(1:k,2) + rectsFull(1:k,4)/2;
+    
+    centresDefX = defaultPos(:,1) + width/2;
+    centresDefY = defaultPos(:,2) + height/2;
+    
+    centresAlg = [centresAlgX, centresAlgY];
+    centresDef = [centresDefX, centresDefY];
+    
+    D = pdist2(centresAlg, centresDef, 'euclidean');
+    defaultAvailable = true(1,K);
+    for alg_i = 1:k
+        [~,minInd] = min(D(alg_i,:));
+        D(:,minInd) = Inf;
+        defaultAvailable(minInd) = false;        
+    end
+    
+    rectsFull(k+1:K,:) = [defaultPos(defaultAvailable,:), repmat([width, height],K-k,1)];
+    rectsTight(k+1:K,:) = rectsFull(k+1:K,:);
+else
+    % Keep only k rectangles (in case of premature exit)
+    rectsTight = rectsTight(1:k,:);
+    rectsFull = rectsFull(1:k,:);
+end
 
 % Compute area of remaining objects
 if isempty(BB)
