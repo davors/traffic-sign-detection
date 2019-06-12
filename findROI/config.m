@@ -18,7 +18,12 @@ param.roi.default = [
 % 'adj' - histogram adjustment
 param.colors.initPipeline = {'heq'}; % any combination of 'cc', 'adj', 'heq'
 param.colors.initMethods.cc = 'gray'; % 'white', 'gray', 'none'
-param.colors.initMethods.heq = 'local'; % 'global', 'local', 'none'
+param.colors.initMethods.heq.type = 'local'; % 'global', 'local', 'none'
+param.colors.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]
+param.colors.initMethods.heq.clipLimit = 0.01;
+param.colors.initMethods.heq.nBins = 32; % quite sensitive
+param.colors.initMethods.heq.range = 'full'; % original, full
+param.colors.initMethods.heq.distribution = 'uniform'; % uniform, rayleigh, exponential
 param.colors.initMethods.adj = [0.3 0.7]; % percantage of input contrast clipping
 
 % HSV thresholds 
@@ -96,7 +101,12 @@ param.colors.thrCC = thrCC;
 % =========== WHITE ======================================================
 param.white.initPipeline = {'cc','heq','adj'}; % any combination of 'cc', 'adj', 'heq'
 param.white.initMethods.cc = 'gray'; % 'white', 'gray', 'none'
-param.white.initMethods.heq = 'local'; % 'global', 'local', 'none'
+param.white.initMethods.heq.type = 'local'; % 'global', 'local', 'none'
+param.white.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]
+param.white.initMethods.heq.clipLimit = 0.01;
+param.white.initMethods.heq.nBins = 32; % quite sensitive
+param.white.initMethods.heq.range = 'full'; % original, full
+param.white.initMethods.heq.distribution = 'uniform'; % uniform, rayleigh, exponential
 param.white.initMethods.adj = [0.4 0.7]; % percentage of input contrast clipping
 
 % HSV thresholds
