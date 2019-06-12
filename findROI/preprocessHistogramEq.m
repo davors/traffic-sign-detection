@@ -15,10 +15,10 @@ if strcmpi(method, 'global')
 elseif strcmpi(method, 'local')
     % Local (CLAHE)
     numTiles = [16, 32];
-    clipLimit = 0.01;
-    nBins = 64;
+    clipLimit = 0.01; %0.01
+    nBins = 32; % sensitive
     range = 'full';
-    distribution = 'uniform';
+    distribution = 'uniform'; % uniform, rayleigh
     
     R = adapthisteq(RGB(:,:,1),'NumTiles',numTiles,'ClipLimit',clipLimit, 'NBins', nBins, 'Range', range, 'Distribution', distribution );
     G = adapthisteq(RGB(:,:,2),'NumTiles',numTiles,'ClipLimit',clipLimit, 'NBins', nBins, 'Range', range, 'Distribution', distribution );

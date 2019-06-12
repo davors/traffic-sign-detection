@@ -74,6 +74,7 @@ end
 %CC = bwconncomp(BW_white_color);
 
 % Weight pixels - color ones are more valuable
+BWmerged = BWmerged_white | BWmerged_color;
 BW_white_only = BWmerged_white & ~BWmerged_color;
 CC_white_only = bwconncomp(BW_white_only);
 
@@ -92,11 +93,8 @@ CC.Weights = [ones(1,CC_white_only.NumObjects)*weightWhite, ones(1,CC_color.NumO
 
 
 % =========== RECTANGLE COVERING ==========================================
-
-tic();
 [BBtight, BBfull, areaLeft] = coverWithRectangles(CC, param.roi);
 % see also: findClusters, placeBoxes
-toc()
 
 if showResults
     Kreal = size(BBtight,1);

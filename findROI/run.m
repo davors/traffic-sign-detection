@@ -1,4 +1,4 @@
-function [allCentroidsROI] = run(file_images,show)
+function [allCentroidsROI] = run(file_images,show,saveOutputImage)
 % Pipeline for traffic signs detection and ROI extraction
 % file_images: - cell array of strings with filenames or
 %              - numeric array of image IDs or
@@ -22,12 +22,15 @@ if ~exist('show','var') || isempty(show)
     show = 0;
 end
 
+if ~exist('saveOutputImage','var') || isempty(saveOutputImage)
+    saveOutputImage = 0;
+end
+
 % Specify folders for input/output
 format = 'jpg';
 folder_in = '../data/original';
 folder_out = '../data/results';
-
-
+folder_out = [folder_out,filesep,datestr(datetime('now'),'YYYY-mm-DD-HH-MM-SS') ];
 
 %--------------------------------------------------------------------------
 % Load parameters configuration
@@ -54,20 +57,33 @@ for image_i = 1:numImages
     file_image = file_images{image_i};
     imagePath = [folder_in, filesep, file_image];
     
-    tic();
+    ticID = tic();
     % Run detector
-    [~, BBfull] = findROI(imagePath,param,show);
+    [~, BBfull, BW] = findROI(imagePath,param,show);
     
     centroidsROI=BBfull(:,1:2)+BBfull(:,3:4)/2;
     centroidsROI=reshape(centroidsROI',[1,param.roi.num*2]);
     allCentroidsROI(image_i,:)=centroidsROI;
     
-    % Save
-    %savePath = [folder_out,filesep,file_image];
-    %imwrite(RGBcc, savePath, 'Quality',100);
-    
-    t = toc();
+    t = toc(ticID);
     totalTime = totalTime + t;
+    
+    if saveOutputImage
+        RGB = imread(imagePath);
+        I = imfuse(BW,RGB,'blend');
+        f = figure('visible','off');
+        hold on;
+        imshow(I, 'InitialMagnification',80);
+        K = size(BBfull,1);
+        for k = 1: K
+            rectangle('Position',BBfull(k,:),'EdgeColor','m','LineWidth',2);
+        end
+        
+        % Save
+        savePath = [folder_out,filesep,file_image];
+        %imwrite(RGBcc, savePath);
+        saveas(f,savePath,'jpg');
+    end
     
     fprintf(1,'File %s done. Time: %f sec.\n', file_image,  t);
      

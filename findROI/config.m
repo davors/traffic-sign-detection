@@ -81,7 +81,7 @@ param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
 thrCC=[];
-thrCC.AreaMin = 1000;
+thrCC.AreaMin = 400;
 thrCC.AreaMax = 230000;
 % Extent filter (extent = area/(height*width))
 thrCC.ExtentMin = 0.45;
