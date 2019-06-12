@@ -45,8 +45,10 @@ if isempty(file_images)
     file_images = {file_images.name};
 end
 
-% Create output folder if it does not exist already.
-[~,~,~] = mkdir(folder_out);
+if saveOutputImage
+    % Create output folder if it does not exist already.
+    [~,~,~] = mkdir(folder_out);
+end
 
 numImages = numel(file_images);
 

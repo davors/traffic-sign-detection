@@ -102,11 +102,11 @@ param.colors.thrCC = thrCC;
 param.white.initPipeline = {'cc','heq','adj'}; % any combination of 'cc', 'adj', 'heq'
 param.white.initMethods.cc = 'gray'; % 'white', 'gray', 'none'
 param.white.initMethods.heq.type = 'local'; % 'global', 'local', 'none'
-param.white.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]
-param.white.initMethods.heq.clipLimit = 0.01;
-param.white.initMethods.heq.nBins = 32; % quite sensitive
-param.white.initMethods.heq.range = 'full'; % original, full
-param.white.initMethods.heq.distribution = 'uniform'; % uniform, rayleigh, exponential
+param.white.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]; [16, 32]
+param.white.initMethods.heq.clipLimit = 0.07; % 0.01
+param.white.initMethods.heq.nBins = 64; % quite sensitive; 32
+param.white.initMethods.heq.range = 'full'; % original, [full]
+param.white.initMethods.heq.distribution = 'uniform'; % [uniform], rayleigh, exponential
 param.white.initMethods.adj = [0.4 0.7]; % percentage of input contrast clipping
 
 % HSV thresholds
