@@ -69,10 +69,10 @@ BWfilt1 = any(BWmasks,3);
 % skipLayers = ismember(colors,{'blue'});
 [BWmasks, BWmerged, CC, CCs] = filterConnComp(BWmasks,thrCC);
 
-f3=figure('units','normalized','OuterPosition',[0,0,1,1]);
-imshow(imtile(cat(3,BWmasks,BWmerged,BWfilt1),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
-waitforbuttonpress;
-close(f3);
+%f3=figure('units','normalized','OuterPosition',[0,0,1,1]);
+%imshow(imtile(cat(3,BWmasks,BWmerged,BWfilt1),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
+%waitforbuttonpress;
+%close(f3);
 % try
 %     close([f1,f2,f3]);
 % catch
