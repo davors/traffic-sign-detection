@@ -19,7 +19,6 @@ BWmasks_old_1 = BWmasks; % layer masks - for plotting only
 % Filter masks
 [BWmasks] = filterMask(BWmasks, param.white.maskFilters);
 BWmasks_old_2 = BWmasks;
-save('BWtmp.mat','BWmasks_old_2');
 
 % Connected components on masks + filtering
 [BWmasks, BWmerged_white, CC_white] = filterConnComp(BWmasks, param.white.thrCC);
@@ -113,7 +112,3 @@ if showResults
     waitforbuttonpress;
     close;
 end
-
-
-
-
