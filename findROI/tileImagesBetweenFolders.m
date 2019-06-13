@@ -3,8 +3,12 @@
 
 
 format = 'jpg';
-folders_in = {'../data/original', '../data/preprocessed_heq', '../data/preprocessed_heq_cc', '../data/preprocessed_cc_heq'};
-folder_out = '../data/tileImagesBetweenFolders/v2';
+%folders_in = {'../data/original', '../data/preprocessed_heq', '../data/preprocessed_heq_cc', '../data/preprocessed_cc_heq'};
+%folder_out = '../data/tileImagesBetweenFolders/v2';
+
+folders_in = {'../data/results/white_cc_none', '../data/results/white_cc_gray'};
+folder_out = '../data/results/compare';
+
 
 % leave empty to process all in folder_in folder.
 %file_images = {'0000118.jpg'}; 

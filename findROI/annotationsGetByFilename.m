@@ -24,6 +24,12 @@ for fi = 1:numFiles
 
     % Find ID of filename in the 'images' field
     index = strcmpi({annotStruct.images.file_name}, imageFile);
+    if ~any(index)
+        fprintf(1,'Cannot find image %s in annotations. Skipping.\n',imageFile);
+        A{fi} = [];
+        continue;
+    end
+    
     imageID = annotStruct.images(index).id;
 
     % Find all annotations for imageID

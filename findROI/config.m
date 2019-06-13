@@ -2,6 +2,15 @@ function param = config()
 
 % Set parameters
 param = [];
+
+% =========== GENERAL =====================================================
+% Specify folders for input/output
+param.general.imageFormat = 'jpg';
+param.general.folderSource = '../data/original_test';
+param.general.folderResults = '../data/results';
+param.general.annotations = '../data/annotations/default/joined_train_test.mat';
+
+% =========== ROI =========================================================
 param.roi.size = [704, 704];
 param.roi.num = 3;
 % top-left positions of default ROIs; WARNING: works only for FHD images
@@ -136,7 +145,7 @@ thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;
 thrCC.AspectMax = 1;
-% Area to squared perimeter ration
+% Area to squared perimeter ratio
 thrCC.A2PSqMin = -Inf;%0.02;
 thrCC.A2PSqMax = Inf;
 param.white.thrCC = thrCC;
