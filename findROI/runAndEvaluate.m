@@ -34,18 +34,21 @@ annot = load(param.general.annotations);
 annot = annot.ANNOT;
 % Compute scores for full bboxes
 BBoxType = 'full';
-[fullyCovered_full, coveredArea_full] = score(images, BBoxes, BBoxType ,annot);
+[statisticsFull] = score(images, BBoxes, BBoxType ,annot);
 
 % Compute scores for tight bboxes
 BBoxType = 'tight';
-[fullyCovered_tight, coveredArea_tight] = score(images, BBoxes, BBoxType ,annot);
+[statisticsTight] = score(images, BBoxes, BBoxType ,annot);
 t = toc(ticID);
-fprintf(1,'Done. Evaluation time: %f s.\n',t);
+fprintf(1,'Done. Evaluation time: %f s.\n\n',t);
 
 % Report
-fprintf(1,'Scores - FULL bboxes \n    fully covered signs: %f\n    covered area: %f\n', fullyCovered_full, coveredArea_full);
-fprintf(1,'Scores - TIGHT bboxes\n    fully covered signs: %f\n    covered area: %f\n', fullyCovered_tight, coveredArea_tight);
-
+fprintf("Scores - FULL bboxes\n");
+displayStatistics(statisticsFull);
+fprintf("\n");
+fprintf("Scores - TIGHT bboxes\n");
+displayStatistics(statisticsTight);
+fprintf("\n");
 % Save
 
 

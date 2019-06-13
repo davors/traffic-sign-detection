@@ -6,7 +6,7 @@ param = [];
 % =========== GENERAL =====================================================
 % Specify folders for input/output
 param.general.imageFormat = 'jpg';
-param.general.folderSource = '../data/original_test';
+param.general.folderSource = '../data/original';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 
