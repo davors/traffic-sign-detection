@@ -9,6 +9,7 @@ param.general.imageFormat = 'jpg';
 param.general.folderSource = '../data/original';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
+param.general.colorMode = 'HSV';
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
@@ -25,9 +26,10 @@ param.roi.default = [
 % 'cc' - color constancy
 % 'heq' - histogram equalization
 % 'adj' - histogram adjustment
+param.colors.weight = 100; % weight of objects in color
 param.colors.initPipeline = {'heq'}; % any combination of 'cc', 'adj', 'heq'
-param.colors.initMethods.cc = 'gray'; % 'white', 'gray', 'none'
-param.colors.initMethods.heq.type = 'local'; % 'global', 'local', 'none'
+param.colors.initMethods.cc = 'none'; % 'white', ['gray'], 'none'
+param.colors.initMethods.heq.type = 'local'; % 'global', ['local'], 'none'
 param.colors.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]
 param.colors.initMethods.heq.clipLimit = 0.01;
 param.colors.initMethods.heq.nBins = 32; % quite sensitive
@@ -111,11 +113,12 @@ param.colors.thrCC = thrCC;
 
 
 % =========== WHITE ======================================================
-param.white.initPipeline = {'cc','heq','adj'}; % any combination of 'cc', 'adj', 'heq'
-param.white.initMethods.cc = 'gray'; % 'white', 'gray', 'none'
+param.white.weight = 1; % weight of white objects
+param.white.initPipeline = {'heq','adj'}; % any combination of 'cc', 'adj', 'heq'
+param.white.initMethods.cc = 'none'; % 'white', 'gray', 'none'
 param.white.initMethods.heq.type = 'local'; % 'global', 'local', 'none'
 param.white.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]; [16, 32]
-param.white.initMethods.heq.clipLimit = 0.07; % 0.01
+param.white.initMethods.heq.clipLimit = 0.2; % 0.01
 param.white.initMethods.heq.nBins = 64; % quite sensitive; 32
 param.white.initMethods.heq.range = 'full'; % original, [full]
 param.white.initMethods.heq.distribution = 'uniform'; % [uniform], rayleigh, exponential
@@ -138,7 +141,7 @@ param.white.maskFilters = {'close_1','fill','open_5'};
 % Size of an area we want to filter out (in pixels)
 thrCC = [];
 thrCC.AreaMin = 700;
-thrCC.AreaMax = 30000;
+thrCC.AreaMax = 20000;
 % Extent filter (extent = area/(height*width))
 thrCC.ExtentMin = 0.5; %0.5
 thrCC.ExtentMax = 1;

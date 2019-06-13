@@ -8,12 +8,18 @@ end
 % Read file
 RGB = imread(imageFile);
 
+if strcmpi(param.general.colorMode,'HSV')
+    I = rgb2hsv(RGB);
+else
+    I = RGB;
+end
+
 % =========== WHITE ======================================================
 % Initial preprocessing
-RGB_white = preprocess(RGB, param.white.initPipeline, param.white.initMethods);
+I_white = preprocess(I, param.white.initPipeline, param.white.initMethods, param.general.colorMode);
 
 % HSV thresholding
-BWmasks = thresholdsHSV(RGB_white,param.white.thrHSV);
+BWmasks = thresholdsHSV(I_white, param.white.thrHSV, param.general.colorMode);
 BWmasks_old_1 = BWmasks; % layer masks - for plotting only
 
 % Filter masks
@@ -21,7 +27,7 @@ BWmasks_old_1 = BWmasks; % layer masks - for plotting only
 BWmasks_old_2 = BWmasks;
 
 % Connected components on masks + filtering
-[BWmasks, BWmerged_white, CC_white] = filterConnComp(BWmasks, param.white.thrCC);
+[~, BWmerged_white] = filterConnComp(BWmasks, param.white.thrCC);
 
 if showResults > 1
     figure('units','normalized','OuterPosition',[0,0,1,1]);
@@ -33,10 +39,10 @@ end
 
 % =========== COLORS ======================================================
 % Initial preprocessing
-RGB_col = preprocess(RGB, param.colors.initPipeline, param.colors.initMethods);
+I_col = preprocess(I, param.colors.initPipeline, param.colors.initMethods, param.general.colorMode);
 
 % HSV thresholding
-BWmasks = thresholdsHSV(RGB_col,param.colors.thrHSV);
+BWmasks = thresholdsHSV(I_col,param.colors.thrHSV, param.general.colorMode);
 
 BW = any(BWmasks,3); % composite mask - for plotting only
 BWmasks_old_1 = BWmasks; % layer masks - for plotting only
@@ -79,8 +85,8 @@ BW_white_only = BWmerged_white & ~BWmerged_color;
 CC_white_only = bwconncomp(BW_white_only);
 
 
-weightWhite = 1;
-weightColor = 100;
+weightWhite = param.white.weight;
+weightColor = param.colors.weight;
 
 CC = struct();
 CC.ImageSize = CC_white_only.ImageSize;
@@ -100,8 +106,8 @@ if showResults
     Kreal = size(BBtight,1);
     % Visualize
     L = labelmatrix(CC);
-    I = label2rgb(L,repmat([1 1 1],CC.NumObjects,1),'black');
-    Im_fused = imfuse(I,RGB_col,'blend');
+    Icc = label2rgb(L,repmat([1 1 1],CC.NumObjects,1),'black');
+    Im_fused = imfuse(Icc, RGB, 'blend');
     figure('units','normalized','OuterPosition',[0 0 1 1]);
     imshow(Im_fused, 'InitialMagnification','fit');
     for k = 1: Kreal
