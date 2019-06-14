@@ -52,6 +52,15 @@ if isempty(file_images)
     file_images = {file_images.name};
 end
 
+if param.general.keepOnlyAnnotated
+    % Keep only files that are annotated
+    annot = load(param.general.annotations);
+    annot = annot.ANNOT;    
+    keepMask = ismember(file_images, {annot.images.file_name});
+    file_images = file_images(keepMask);
+end
+
+
 
 if saveImage || saveResults
     % Create output folder if it does not exist already.
