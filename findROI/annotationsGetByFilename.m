@@ -31,6 +31,7 @@ for fi = 1:numFiles
     end
     
     imageID = annotStruct.images(index).id;
+    imageSize = [annotStruct.images(index).width, annotStruct.images(index).height] ;
 
     % Find all annotations for imageID
     index = [annotStruct.annotations.image_id] == imageID;
@@ -40,6 +41,7 @@ for fi = 1:numFiles
         a = a(notIgnored);
     end
     
-    A{fi} = a;
+    A{fi}.a = a;
+    A{fi}.size=imageSize;
 end
     
