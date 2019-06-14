@@ -34,6 +34,8 @@ end
 % Load parameters configuration
 param = config();
 
+algorithm = param.general.findROIalgorithm;
+
 % Specify folders for input/output
 format = param.general.imageFormat;
 folder_in = param.general.folderSource;
@@ -66,7 +68,15 @@ for image_i = 1:numImages
     
     ticID = tic();
     % Run detector
-    [BBtight, BBfull, BW] = findROI(imagePath,param,show);
+    if strcmpi(algorithm,'dummy')
+        [BBtight, BBfull, BW] = findROIdummy(imagePath,param,show);
+        
+    elseif strcmpi(algorithm,'smarty')
+        [BBtight, BBfull, BW] = findROI(imagePath,param,show);
+    
+    else
+        error('Wrong findROI algorithm %s.\n',algorithm);
+    end
     
     BBox_image_tight=[];
     BBox_image_full=[];

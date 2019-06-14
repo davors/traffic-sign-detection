@@ -5,8 +5,8 @@ function [BBoxes, file_images, param, folder_out] = runDetectorPar(file_images,s
 %              - numeric array of image IDs or
 %              - empty/notexistant to process all images in folder
 % show:  0 - do not display anything
-%        1 - display final results
-%        2 - display intermediate results
+%        (not here) 1 - display final results
+%        (not here) 2 - display intermediate results
 
 if ~exist('file_images','var')
     file_images = [];
@@ -20,9 +20,9 @@ elseif isnumeric(file_images)
     file_images = tmp;
 end
 
-if ~exist('show','var') || isempty(show)
-    show = 0;
-end
+% Interactive show not supported in parallel.
+show = 0;
+
 
 if ~exist('saveImage','var') || isempty(saveImage)
     saveImage = 0;
@@ -36,6 +36,7 @@ end
 param = config();
 
 parallelNumWorkers = param.general.parallelNumWorkers;
+algorithm = param.general.findROIalgorithm;
 
 % Specify folders for input/output
 format = param.general.imageFormat;
@@ -76,7 +77,15 @@ parfor image_i = 1:numImages
     
     ticID = tic();
     % Run detector
-    [BBtight, BBfull, BW] = findROI(imagePath,param,show);
+    if strcmpi(algorithm,'dummy')
+        [BBtight, BBfull, BW] = findROIdummy(imagePath,param,show);
+        
+    elseif strcmpi(algorithm,'smarty')
+        [BBtight, BBfull, BW] = findROI(imagePath,param,show);
+    
+    else
+        error('Wrong findROI algorithm %s.\n',algorithm);
+    end
     
     BBox_image_tight=[];
     BBox_image_full=[];
