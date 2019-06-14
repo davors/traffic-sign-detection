@@ -39,8 +39,12 @@ param = config();
 
 %--------------------------------------------------------------------------
 % Run detector
-[BBoxes, images, ~, folderSave] = runDetector(images, show, saveImage, saveResults);
-
+assert(param.general.parallelNumWorkers > 0,'param.general.parallelNumWorkers has to be positive integer.');
+if param.general.parallelNumWorkers > 1
+    [BBoxes, images, ~, folderSave] = runDetectorPar(images, show, saveImage, saveResults);
+else
+    [BBoxes, images, ~, folderSave] = runDetector(images, show, saveImage, saveResults);
+end
 %--------------------------------------------------------------------------
 % Evaluate
 fprintf(1,'Evaluating ...\n');
