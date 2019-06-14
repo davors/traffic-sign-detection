@@ -21,7 +21,7 @@ if ~exist('saveMode','var') || isempty(saveMode)
     saveMode = 'none';
 end
 
-assert(ismember(saveMode,{'none','results','image','all'}),'Wrong saveMode.');
+%assert(ismember(saveMode,{'none','results','image','all'}),'Wrong saveMode.');
 saveImage = 0;
 saveResults = 0;
 if any(strcmpi(saveMode,{'image','all'}))
