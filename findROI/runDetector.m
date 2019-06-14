@@ -1,4 +1,4 @@
-function [BBoxes, file_images, param] = runDetector(file_images,show,saveOutput)
+function [BBoxes, file_images, param, folder_out] = runDetector(file_images,show,saveImage,saveResults)
 % Pipeline for traffic signs detection and ROI extraction
 % file_images: - cell array of strings with filenames or
 %              - numeric array of image IDs or
@@ -23,8 +23,11 @@ if ~exist('show','var') || isempty(show)
     show = 0;
 end
 
-if ~exist('saveOutput','var') || isempty(saveOutput)
-    saveOutput = 0;
+if ~exist('saveImage','var') || isempty(saveImage)
+    saveImage = 0;
+end
+if ~exist('saveResults','var') || isempty(saveResults)
+    saveResults = 0;
 end
 
 %--------------------------------------------------------------------------
@@ -46,7 +49,7 @@ if isempty(file_images)
 end
 
 
-if saveOutput
+if saveImage || saveResults
     % Create output folder if it does not exist already.
     [~,~,~] = mkdir(folder_out);
 end
@@ -82,7 +85,7 @@ for image_i = 1:numImages
     t = toc(ticID);
     totalTime = totalTime + t;
     
-    if saveOutput
+    if saveImage
         RGB = imread(imagePath);
         I = imfuse(BW,RGB,'blend');
         f = figure('visible','off');
@@ -102,7 +105,7 @@ for image_i = 1:numImages
      
 end
 % Save results in MAT file
-if saveOutput
+if saveResults
     save([folder_out,filesep,'results.mat'], 'BBoxes', 'file_images', 'param');
 end
 fprintf(1,'Done %d images. Total time: %f sec.\n', numImages, totalTime);

@@ -1,24 +1,11 @@
-
-function [BWlayers, colors, tS] = thresholdsHSV(RGB,tS)
+function [BWlayers, colors, tS] = thresholdsHSV(I,tS,colorMode)
 
 if ~exist('tS','var') || isempty(tS)
     % Thresholds for HSV color model in a struct    
-    %tS.colors = {'red','blue','yellowDark', 'yellowLight', 'green', 'greenFluor', 'brown'};
-    %tS.thresholds = [...
-        %0.93  0.03,  0.5  1.0,  0.2 1.0; ...
-        %0.59  0.71,  0.5  1.0,  0.2 1.0; ...
-        %0.05  0.13,  0.64 1.0,  0.2 1.0; ...
-        %0.13  0.18,  0.64 1.0,  0.2 1.0; ...
-        %0.36  0.47,  0.5  1.0,  0.2 1.0; ...
-        %0.16  0.22,  0.7  1.0,  0.5 1.0; ...
-        %0.00  0.08,  0.6  1.0,  0.2 1.0  ];
-    %
     % Vitabile et al. (2002) defined three different areas in the HSV colour space as follows:
     % 1) The achromatic area, characterised by S <= 0.25 or V <= 0.2 or V => 0.9.
     % 2) The unstable chromatic area, characterised by 0.25 <= S <= 0.5 and 0.2 <= V <= 0.9.
     % 3) The chromatic area, characterised by S >= 0.5 and 0.2 <= V <= 0.9.
-    
-    
     
     tS.red.Hmin = 0.93;
     tS.red.Hmax = 0.03;
@@ -86,17 +73,18 @@ else
     assert(isstruct(tS),'tS has to be a struct.');
 end
 
-[h,w,c] = size(RGB);
+[h,w,c] = size(I);
 colors = fieldnames(tS);
 numColors = numel(colors);
 
 BWlayers = false(h,w,numColors);
 
-I = rgb2hsv(RGB);
+if strcmpi(colorMode,'RGB')
+    I = rgb2hsv(I);
+end
 
 for ci = 1:numColors
-    color = colors{ci};
-    
+    color = colors{ci};    
     thres = tS.(color);
     
     % Hue around-the-circle thresholds check
@@ -110,8 +98,5 @@ for ci = 1:numColors
         ((I(:,:,1) >= thres.Hmin ) & (I(:,:,1) <= thres.Hmax)) & ...
         ((I(:,:,2) >= thres.Smin ) & (I(:,:,2) <= thres.Smax)) & ...
         ((I(:,:,3) >= thres.Vmin ) & (I(:,:,3) <= thres.Vmax));
-    end
-        
+    end        
 end
-
-
