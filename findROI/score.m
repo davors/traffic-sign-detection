@@ -41,16 +41,15 @@ for image_i=1:numel(A)
         continue;
     end
     image_file_name=file_images{image_i};
-    
-    for sign_i=1:numel(A{image_i})
+    height = A{image_i}.size(2);
+    for sign_i=1:numel(A{image_i}.a)
         sign_inside=0;
         area_covered=0;
-        sign_category=0;
         
         %extract sign data
-        sign_category=A{image_i}(sign_i).category_id+1;
-        xs=A{image_i}(sign_i).segmentation(1:2:end-2);
-        ys=A{image_i}(sign_i).segmentation(2:2:end-2);
+        sign_category=A{image_i}.a(sign_i).category_id+1;
+        xs=A{image_i}.a(sign_i).segmentation(1:2:end-2);
+        ys=A{image_i}.a(sign_i).segmentation(2:2:end-2);
         
         %convert to polygon and calculate area
         poly = polyshape(xs,ys);
@@ -76,7 +75,7 @@ for image_i=1:numel(A)
         %loop through all bounding boxes
         for box_i=0:size(BBox_i,2)/8-1 
             xb=BBox_i(box_i*8+1:2:box_i*8+8);
-            yb=1080-BBox_i(box_i*8+2:2:box_i*8+8);
+            yb=height-BBox_i(box_i*8+2:2:box_i*8+8);
             
             %check if the sign is inside of the bounding box
             [in, on]=inpolygon(xs,ys,xb,yb);
