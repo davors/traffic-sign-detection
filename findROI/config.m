@@ -5,7 +5,7 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'smarty'; % 'dummy', 'smarty'
+param.general.findROIalgorithm = 'dummy'; % 'dummy', 'smarty'
 param.general.imageFormat = 'jpg';
 %param.general.folderSource = '../data/original';
 param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
@@ -14,7 +14,7 @@ param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 param.general.keepOnlyAnnotated = 1;
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 1;
+param.general.parallelNumWorkers = 3;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
