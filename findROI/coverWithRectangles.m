@@ -75,13 +75,13 @@ for k = 1:K
     if numPoints > 1
         right = 1;
         for left=1:numPoints
-
+            right = max(right,left);
             % Enlarge rectangle towards right - make sure that whole bb falls
             % into covering rectangle
             while (right <= numPoints) && ((BB(right,1)+BB(right,3)) <= (BB(left,1)+width))
                 right = right + 1; % add bb
             end
-            right = right - 1;
+            right = max(1,right - 1);
 
             % Sort selected blobs by y
             column = sortrows(BB(left:right,:),2,'ascend');
@@ -91,7 +91,7 @@ for k = 1:K
                 while (bottom <= numColumn) && ((column(bottom,2)+column(bottom,4)) <= (column(top,2) + height)) 
                     bottom = bottom + 1;
                 end
-                bottom = bottom - 1;
+                bottom = max(1,bottom - 1);
 
                 % Evaluate selected blobs - sum of covered area
                 score = sum(column(top:bottom,5));
@@ -113,11 +113,11 @@ for k = 1:K
         optimalInds = find(ismember(BB(:,6),optimalIDs));
         
         xMin = min(BB(optimalInds,1));
-        xMax = max(BB(optimalInds,1)+BB(optimalInds,3)); % x+width
+        xMax = min(max(BB(optimalInds,1)+BB(optimalInds,3)),xMin+width); % x+width
         w = xMax - xMin; % width of a covering rectangle
         % Extract top and bottom (y axis)
         yMin = min(BB(optimalInds,2));
-        yMax = max(BB(optimalInds,2)+BB(optimalInds,4));
+        yMax = min(max(BB(optimalInds,2)+BB(optimalInds,4)),yMin+height);
         h = yMax - yMin;
     else
         % Only 1 point (bb) left.
