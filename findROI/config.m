@@ -6,8 +6,8 @@ param = [];
 % =========== GENERAL =====================================================
 % Specify folders for input/output
 param.general.imageFormat = 'jpg';
-%param.general.folderSource = '../data/original';
-param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos';
+param.general.folderSource = '../data/original';
+%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 param.general.colorMode = 'HSV';
