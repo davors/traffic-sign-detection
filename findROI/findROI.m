@@ -99,6 +99,15 @@ CC.Weights = [ones(1,CC_white_only.NumObjects)*weightWhite, ones(1,CC_color.NumO
 
 
 % =========== RECTANGLE COVERING ==========================================
+% Check for image size
+[imW, imH, ~] = size(RGB);
+sizeInd = cellfun(@(x) (all(x==[imW, imH])), param.roi.default.imageSize, 'UniformOutput', 1);
+if any(sizeInd)
+    param.roi.default.pos = param.roi.default.pos{sizeInd};
+else
+    param.roi.default.pos = [];
+end
+
 [BBtight, BBfull, areaLeft] = coverWithRectangles(CC, param.roi);
 % see also: findClusters, placeBoxes
 

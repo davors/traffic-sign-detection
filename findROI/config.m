@@ -6,20 +6,23 @@ param = [];
 % =========== GENERAL =====================================================
 % Specify folders for input/output
 param.general.imageFormat = 'jpg';
-%param.general.folderSource = '../data/original';
-param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos';
+param.general.folderSource = '../data/original';
+%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 param.general.colorMode = 'HSV';
+param.general.parallelNumWorkers = 3;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
 param.roi.num = 3;
 % top-left positions of default ROIs; WARNING: works only for FHD images
-param.roi.default = [
-    0, 200; 
-    1920/2-param.roi.size(1)/2, 0; 
-    1920-param.roi.size(1), 200];
+param.roi.default.imageSize = {[1080 1920], [576 720]};
+param.roi.default.pos = { ...
+    [0, 200; ...
+    1920/2-param.roi.size(1)/2, 0; ...
+    1920-param.roi.size(1), 200], ...
+    []}; % empty position means that no default positions are used
 
 
 % =========== COLORS ======================================================
@@ -107,7 +110,7 @@ thrCC.ExtentMax = 1;
 thrCC.AspectMin = 0.16;
 thrCC.AspectMax = 1;
 % Area to squared perimeter ration
-thrCC.A2PSqMin = -Inf; %0.02;
+thrCC.A2PSqMin = 0.02; %0.02;
 thrCC.A2PSqMax = Inf;
 
 param.colors.thrCC = thrCC;

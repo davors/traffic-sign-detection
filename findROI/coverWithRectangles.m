@@ -20,7 +20,7 @@ function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,param)
 
 K = param.num;
 sizeRect = param.size;
-defaultPos = param.default;
+defaultPos = param.default.pos;
 
 if numel(sizeRect) == 1
     width = sizeRect;

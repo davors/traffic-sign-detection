@@ -56,9 +56,10 @@ end
 
 numImages = numel(file_images);
 
-totalTime = 0;
+
 BBoxes = cell(numImages,1);
 % Loop over all files with images
+ticID2 = tic();
 for image_i = 1:numImages
     file_image = file_images{image_i};
     imagePath = [folder_in, filesep, file_image];
@@ -83,7 +84,6 @@ for image_i = 1:numImages
     BBoxes{image_i}.file_name = file_image;
     
     t = toc(ticID);
-    totalTime = totalTime + t;
     
     if saveImage
         RGB = imread(imagePath);
@@ -104,6 +104,7 @@ for image_i = 1:numImages
     fprintf(1,'File %s done. Time: %f sec.\n', file_image,  t);
      
 end
+totalTime = toc(ticID2);
 % Save results in MAT file
 if saveResults
     save([folder_out,filesep,'results.mat'], 'BBoxes', 'file_images', 'param');
