@@ -14,7 +14,7 @@ elseif isnumeric(file_images)
     file_images = tmp;
 end
 
-show = 0; % interactive plots
+show = 1; % interactive plots
 
 % Specify folders for input/output
 format = 'jpg';
@@ -23,8 +23,18 @@ folder_out = '../data/segmentWhite';
 
 %--------------------------------------------------------------------------
 % Parameters
-histEqMethod = 'local'; % 'global', 'local', 'none'
-colConstMethod = 'gray'; % 'white', 'gray', 'none'
+colorMode = 'RGB';
+pipeline = {'cc','heq','adj'};
+methods.cc = 'gray';
+
+methods.heq.type = 'local'; % 'global', 'local', 'none'
+methods.heq.numTiles = [8, 16]; % number of tiles [m x n]; [16, 32]
+methods.heq.clipLimit = 0.01; % 0.01, 0.2
+methods.heq.nBins = 64; % quite sensitive; 32, 64
+methods.heq.range = 'full'; % original, [full]
+methods.heq.distribution = 'uniform'; % [uniform], rayleigh, exponential
+methods.adj = [0.4 0.7];
+
 
 % Thresholds for "white" in HSV color space
 thrHSV = struct();
@@ -46,6 +56,10 @@ thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;
 thrCC.AspectMax = 1;
+
+% Area to squared perimeter ratio
+thrCC.A2PSqMin = -Inf;%0.02;
+thrCC.A2PSqMax = Inf;
 
 %--------------------------------------------------------------------------
 
@@ -69,9 +83,10 @@ for image_i = 1:numImages
     RGB = imread(imagePath);
     
     % Preprocess
-    RGB = preprocessColorConstancy(RGB,colConstMethod);
-    RGB = preprocessHistogramEq(RGB,histEqMethod);
-    RGB = imadjust(RGB, [0.4 0.4 0.4; 0.7 0.7 0.7],[]);
+    RGB = preprocess(RGB, pipeline, methods, colorMode);
+    %RGB = preprocessColorConstancy(RGB,colConstMethod, 'RGB');
+    %RGB = preprocessHistogramEq(RGB,heq, 'RGB');
+    %RGB = imadjust(RGB, [0.4 0.4 0.4; 0.7 0.7 0.7],[]);
     
     
     % Otsu thresholding
@@ -83,7 +98,7 @@ for image_i = 1:numImages
     %BW1 = imbinarize(HSV(:,:,3));
     
     % HSV thresholding    
-    BW1 = thresholdsHSV(RGB, thrHSV);
+    BW1 = thresholdsHSV(RGB, thrHSV, 'RGB');
     
     % Filter
     BW2 = filterMask(BW1, {'close_1','fill','open_5'});

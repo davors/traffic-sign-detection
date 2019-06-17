@@ -2,6 +2,9 @@ function BWmask = filterMask(BWmask, filters)
 % Available filters/operations: 
 % 'median': median filtering
 % 'gauss': gaussian filtering/blurring
+% 'erode'
+% 'dilate'
+% 'open'
 % 'close': morphological closing
 % 'fill': holes filling
 
@@ -67,6 +70,15 @@ for m=1:numMasks
             end
             se = strel(se_dilate,p);
             BWmask(:,:,m) = imdilate(BWmask(:,:,m),se);
+            
+        elseif strcmpi(filterName,'erode')
+            if isempty(filterParam)
+                p = seSize_dilate;
+            else
+                p = str2double(filterParam);
+            end
+            se = strel(se_dilate,p);
+            BWmask(:,:,m) = imerode(BWmask(:,:,m),se);
             
         elseif strcmpi(filterName,'close')
             if isempty(filterParam)
