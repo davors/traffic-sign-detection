@@ -32,7 +32,8 @@ statistics.partially_covered_signs=zeros(1,201);
 statistics.total_signs=zeros(1,201);
 statistics.covered_area=zeros(1,201);
 statistics.total_area=zeros(1,201);
-
+heatmap=zeros(1080,1920);
+histogram=[];
 %figure;
 %hold on;
 for image_i=1:numel(A)
@@ -51,7 +52,9 @@ for image_i=1:numel(A)
             sign_category=A{image_i}.a(sign_i).category_id+1;
             xs=A{image_i}.a(sign_i).segmentation(1:2:end-2);
             ys=A{image_i}.a(sign_i).segmentation(2:2:end-2);
-
+            mask=poly2mask(xs,ys,1080,1920);
+            heatmap=heatmap+mask;
+            histogram=[histogram, min(ys)];
             %convert to polygon and calculate area
             poly = polyshape(xs,ys);
             poly_area = area(poly);
@@ -108,5 +111,7 @@ for image_i=1:numel(A)
         end   
     end
 end
+    statistics.histogram=histogram;
+    statistics.heatmap=heatmap;
     warning('on','MATLAB:polyshape:repairedBySimplify');
 end
