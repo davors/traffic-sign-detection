@@ -55,21 +55,26 @@ annot = annot.ANNOT;
 % Compute scores for full bboxes
 BBoxType = 'full';
 [statisticsFull] = score(images, BBoxes, BBoxType ,annot);
-fprintf(1,'Done type FULL. Time: %f s.\n\n',toc(ticID));
+timeEvaluation = toc(ticID);
+fprintf(1,'Done type FULL. Time: %f s.\n\n',timeEvaluation);
 
 fprintf("Scores - FULL bboxes\n");
 displayStatistics(statisticsFull);
 fprintf("\n");
 
-% Compute scores for tight bboxes
-BBoxType = 'tight';
-[statisticsTight] = score(images, BBoxes, BBoxType ,annot);
-timeEvaluation = toc(ticID);
-fprintf(1,'Done type TIGHT. Total evaluation time: %f s.\n\n',timeEvaluation);
+if strcmpi(param.general.findROIalgorithm, 'dummy')
+    statisticsTight = statisticsFull;
+else
+    % Compute scores for tight bboxes
+    BBoxType = 'tight';
+    [statisticsTight] = score(images, BBoxes, BBoxType ,annot);
+    timeEvaluation = toc(ticID);
+    fprintf(1,'Done type TIGHT. Total evaluation time: %f s.\n\n',timeEvaluation);
 
-fprintf("Scores - TIGHT bboxes\n");
-displayStatistics(statisticsTight);
-fprintf("\n");
+    fprintf("Scores - TIGHT bboxes\n");
+    displayStatistics(statisticsTight);
+    fprintf("\n");
+end
 
 %--------------------------------------------------------------------------
 % Save
