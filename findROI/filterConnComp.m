@@ -14,6 +14,7 @@ for m=1:numMasks
     
     maskArea = ([stat.Area] >= thr.AreaMin) & ([stat.Area] <= thr.AreaMax);
     maskExtent = ([stat.Extent] >= thr.ExtentMin) & ([stat.Extent] <= thr.ExtentMax);
+    %
     %centroids = reshape([stat.Centroid],2,cc.NumObjects)';
     bboxes = reshape([stat.BoundingBox],4,cc.NumObjects)';
     bb_width = bboxes(:,3)';
@@ -22,11 +23,13 @@ for m=1:numMasks
     flipOver = bb_aspect > 1;
     bb_aspect(flipOver) = 1./bb_aspect(flipOver);
     maskAspect = (bb_aspect >= thr.AspectMin) & (bb_aspect <= thr.AspectMax);
+    maskDim = (bb_width >= thr.WidthMin) & (bb_height >= thr.HeightMin);
+    
     
     A2PSq = [stat.Area]./([stat.Perimeter].^2);
     maskA2PSq = (A2PSq >= thr.A2PSqMin) & (A2PSq <= thr.A2PSqMax);
     
-    mask = maskArea & maskExtent & maskAspect & maskA2PSq;
+    mask = maskArea & maskExtent & maskAspect & maskA2PSq & maskDim;
     
     filtCC = struct();
     filtCC.Connectivity = cc.Connectivity;

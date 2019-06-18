@@ -5,16 +5,16 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'dummy'; % 'dummy', 'smarty', 'smartyColor'
+param.general.findROIalgorithm = 'smartyColor'; % 'dummy', 'smarty', 'smartyColor'
 param.general.imageFormat = 'jpg';
-%param.general.folderSource = '../data/original';
-param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
+param.general.folderSource = '../data/original';
+%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 param.general.keepOnlyAnnotated = 1;
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 3;
+param.general.parallelNumWorkers = 1;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
@@ -59,11 +59,11 @@ thrHSV.red.Vmin = 0.00;
 thrHSV.red.Vmax = 1.00;
 
 thrHSV.blue.Hmin = 0.52;
-thrHSV.blue.Hmax = 0.70;
-thrHSV.blue.Smin = 0.60;
+thrHSV.blue.Hmax = 0.70; %0.7
+thrHSV.blue.Smin = 0.6; %0.6
 thrHSV.blue.Smax = 1.00;
-thrHSV.blue.Vmin = 0.20;
-thrHSV.blue.Vmax = 1.00;
+thrHSV.blue.Vmin = 0.25; %0.2
+thrHSV.blue.Vmax = 1.0; %1.0
 
 thrHSV.yellowDark.Hmin = 0.05;
 thrHSV.yellowDark.Hmax = 0.13;
@@ -109,7 +109,11 @@ param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
 thrCC=[];
-thrCC.AreaMin = 400;
+
+thrCC.HeightMin=25;
+thrCC.WidthMin=25;
+
+thrCC.AreaMin = 625;
 thrCC.AreaMax = 230000;
 % Extent filter (extent = area/(height*width))
 thrCC.ExtentMin = 0.45;
@@ -152,6 +156,10 @@ param.white.maskFilters = {'close_1','fill','open_5'};
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
 thrCC = [];
+
+thrCC.HeightMin=25;
+thrCC.WidthMin=25;
+
 thrCC.AreaMin = 700;
 thrCC.AreaMax = 20000;
 % Extent filter (extent = area/(height*width))

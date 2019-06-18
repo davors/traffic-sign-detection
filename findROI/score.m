@@ -32,8 +32,7 @@ statistics.partially_covered_signs=zeros(1,201);
 statistics.total_signs=zeros(1,201);
 statistics.covered_area=zeros(1,201);
 statistics.total_area=zeros(1,201);
-heatmap=zeros(1080,1920);
-histogram=[];
+%heatmap=zeros(1080,1920);
 %figure;
 %hold on;
 for image_i=1:numel(A)
@@ -109,7 +108,6 @@ for image_i=1:numel(A)
         
     end
 end
-    statistics.histogram=histogram;
-    statistics.heatmap=heatmap;
+    %statistics.heatmap=heatmap;
     warning('on','MATLAB:polyshape:repairedBySimplify');
 end
