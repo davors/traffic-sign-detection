@@ -5,28 +5,31 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'dummy'; % 'dummy', 'smarty'
+param.general.findROIalgorithm = 'dummy'; % 'dummy', 'smarty', 'smartyColor'
 param.general.imageFormat = 'jpg';
 %param.general.folderSource = '../data/original';
 param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
+param.general.keepOnlyAnnotated = 1;
+param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 4;
+param.general.parallelNumWorkers = 3;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
 param.roi.num = 3;
 % top-left positions of default ROIs; WARNING: works only for FHD images
 param.roi.default.imageSize = {[1080 1920], [576 720], [1236 1628]};
+offset = 40;
 param.roi.default.pos = { ...
-    [0, 50; ...
+    [0, offset; ...
     1920/2-param.roi.size(1)/2, 0; ...
-    1920-param.roi.size(1), 200], ...
+    1920-param.roi.size(1), offset], ...
     [720/2-param.roi.size(1)/2, 0], ...
-    [0, 50; ...
+    [0, offset; ...
     1628/2-param.roi.size(1)/2, 0; ...
-    1628-param.roi.size(1), 200], ...
+    1628-param.roi.size(1), offset], ...
     }; % empty position means that no default positions are used
 
 
@@ -39,9 +42,9 @@ param.colors.weight = 100; % weight of objects in color
 param.colors.initPipeline = {'heq'}; % any combination of 'cc', 'adj', 'heq'
 param.colors.initMethods.cc = 'none'; % 'white', ['gray'], 'none'
 param.colors.initMethods.heq.type = 'local'; % 'global', ['local'], 'none'
-param.colors.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]
+param.colors.initMethods.heq.numTiles = [9, 16]; % number of tiles [m x n]
 param.colors.initMethods.heq.clipLimit = 0.01;
-param.colors.initMethods.heq.nBins = 32; % quite sensitive
+param.colors.initMethods.heq.nBins = 64; % quite sensitive
 param.colors.initMethods.heq.range = 'full'; % original, full
 param.colors.initMethods.heq.distribution = 'uniform'; % uniform, rayleigh, exponential
 param.colors.initMethods.adj = [0.3 0.7]; % percantage of input contrast clipping
@@ -126,9 +129,9 @@ param.white.weight = 1; % weight of white objects
 param.white.initPipeline = {'heq','adj'}; % any combination of 'cc', 'adj', 'heq'
 param.white.initMethods.cc = 'none'; % 'white', 'gray', 'none'
 param.white.initMethods.heq.type = 'local'; % 'global', 'local', 'none'
-param.white.initMethods.heq.numTiles = [16, 32]; % number of tiles [m x n]; [16, 32]
-param.white.initMethods.heq.clipLimit = 0.2; % 0.01
-param.white.initMethods.heq.nBins = 64; % quite sensitive; 32
+param.white.initMethods.heq.numTiles = [9, 16]; % number of tiles [m x n]; [16, 32]
+param.white.initMethods.heq.clipLimit = 0.01; % 0.01, 0.2
+param.white.initMethods.heq.nBins = 64; % quite sensitive; 32, 64
 param.white.initMethods.heq.range = 'full'; % original, [full]
 param.white.initMethods.heq.distribution = 'uniform'; % [uniform], rayleigh, exponential
 param.white.initMethods.adj = [0.4 0.7]; % percentage of input contrast clipping

@@ -119,13 +119,17 @@ for k = 1:K
         yMin = min(BB(optimalInds,2));
         yMax = min(max(BB(optimalInds,2)+BB(optimalInds,4)),yMin+height);
         h = yMax - yMin;
-    else
+    elseif numPoints == 1
         % Only 1 point (bb) left.
         optimalInds = 1;
         xMin = BB(1,1);
         w = BB(1,3);
         yMin = BB(1,2);
         h = BB(1,4);
+    else
+        % No blobs
+        k = 0;
+        break;
     end
     
     % Store rectangle (tight bounding box)
@@ -159,7 +163,11 @@ for k = 1:K
     end
 end
 
-if k < K && ~isempty(defaultPos)
+if k==0 && ~isempty(defaultPos)
+    rectsFull = [defaultPos, repmat([width, height],K,1)];
+    rectsTight = rectsFull;
+
+elseif k < K && ~isempty(defaultPos)
     % Use rectangles on defaultPos to fill in K-k rectangles
     % Get centres of k rectangles and also default ones
     centresAlgX = rectsFull(1:k,1) + rectsFull(1:k,3)/2; 

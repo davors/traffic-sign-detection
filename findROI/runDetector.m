@@ -40,7 +40,7 @@ algorithm = param.general.findROIalgorithm;
 format = param.general.imageFormat;
 folder_in = param.general.folderSource;
 folder_out = param.general.folderResults;
-folder_out = [folder_out,filesep,['detector-',datestr(datetime('now'),'YYYY-mm-DD-HH-MM-SS')] ];
+folder_out = [folder_out,filesep,[algorithm,'-',datestr(datetime('now'),'YYYY-mm-DD-HH-MM-SS')] ];
 
 %--------------------------------------------------------------------------
 
@@ -48,6 +48,14 @@ folder_out = [folder_out,filesep,['detector-',datestr(datetime('now'),'YYYY-mm-D
 if isempty(file_images)
     file_images = dir([folder_in,'/*.',format]);
     file_images = {file_images.name};
+end
+
+if param.general.keepOnlyAnnotated
+    % Keep only files that are annotated
+    annot = load(param.general.annotations);
+    annot = annot.ANNOT;    
+    keepMask = ismember(file_images, {annot.images.file_name});
+    file_images = file_images(keepMask);
 end
 
 
@@ -73,6 +81,9 @@ for image_i = 1:numImages
         
     elseif strcmpi(algorithm,'smarty')
         [BBtight, BBfull, BW] = findROI(imagePath,param,show);
+    
+    elseif strcmpi(algorithm,'smartyColor')
+        [BBtight, BBfull, BW] = findROIcolor(imagePath,param,show);
     
     else
         error('Wrong findROI algorithm %s.\n',algorithm);
@@ -114,9 +125,9 @@ for image_i = 1:numImages
     fprintf(1,'File %s done. Time: %f sec.\n', file_image,  t);
      
 end
-totalTime = toc(ticID2);
+timeDetection = toc(ticID2);
 % Save results in MAT file
 if saveResults
-    save([folder_out,filesep,'results.mat'], 'BBoxes', 'file_images', 'param');
+    save([folder_out,filesep,'results.mat'], 'BBoxes', 'file_images', 'param', 'timeDetection');
 end
-fprintf(1,'Done %d images. Total time: %f sec.\n', numImages, totalTime);
+fprintf(1,'Done %d images. Total time: %f sec.\n', numImages, timeDetection);
