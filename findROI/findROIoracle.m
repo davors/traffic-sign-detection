@@ -15,7 +15,7 @@ numSigns = numel(annot.a);
 for sign_i=1:numSigns
     % extract sign data
     xs = annot.a(sign_i).segmentation(1:2:end-2);
-    ys = imH - annot.a(sign_i).segmentation(2:2:end-2); % mirrored over y
+    ys = annot.a(sign_i).segmentation(2:2:end-2);
     
     % convert to polygon mask
     M = poly2mask(xs,ys,imH,imW);

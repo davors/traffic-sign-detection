@@ -5,7 +5,7 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'oracle'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
+param.general.findROIalgorithm = 'dummy'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
 param.general.imageFormat = 'jpg';
 param.general.folderSource = '../data/original';
 %param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
