@@ -18,7 +18,7 @@ if ~exist('tS','var') || isempty(tS)
     tS.blue.Hmax = 0.70;
     tS.blue.Smin = 0.60;
     tS.blue.Smax = 1.00;
-    tS.blue.Vmin = 0.20;
+    tS.blue.Vmin = 0.25;
     tS.blue.Vmax = 1.00;
         
     tS.yellowDark.Hmin = 0.05;

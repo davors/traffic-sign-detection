@@ -32,6 +32,8 @@ statistics.partially_covered_signs=zeros(1,201);
 statistics.total_signs=zeros(1,201);
 statistics.covered_area=zeros(1,201);
 statistics.total_area=zeros(1,201);
+statistics.num_images=0;
+statistics.per_image={};
 %heatmap=zeros(1080,1920);
 %figure;
 %hold on;
@@ -42,6 +44,14 @@ for image_i=1:numel(A)
     end
     image_file_name=file_images{image_i};
     height = A{image_i}.size(2);
+    
+    statistics.num_images=statistics.num_images+1;
+    statistics.per_image{statistics.num_images}.file_name=image_file_name;
+    statistics.per_image{statistics.num_images}.covered_area=0;
+    statistics.per_image{statistics.num_images}.covered_signs=0;
+    statistics.per_image{statistics.num_images}.partially_covered_signs=0;
+    statistics.per_image{statistics.num_images}.not_covered_signs=0;
+    statistics.per_image{statistics.num_images}.total_area=0;
     
     for sign_i=1:numel(A{image_i}.a)        
         sign_inside=0;
@@ -62,7 +72,7 @@ for image_i=1:numel(A)
         statistics.total_area(end)=statistics.total_area(end)+poly_area;
         statistics.total_signs(sign_category)=statistics.total_signs(sign_category)+1;
         statistics.total_area(sign_category)=statistics.total_area(sign_category)+poly_area;
-        
+        statistics.per_image{statistics.num_images}.total_area=statistics.per_image{statistics.num_images}.total_area+poly_area;
         %find the correct bounding boxes for the current image
         index = cellfun(@(x) strcmpi(x.file_name,image_file_name), BBox, 'UniformOutput', 1);
         if strcmpi(BBoxType,'full')
@@ -101,9 +111,16 @@ for image_i=1:numel(A)
         statistics.covered_area(end)=statistics.covered_area(end)+area_covered;
         statistics.covered_area(sign_category)=statistics.covered_area(sign_category)+area_covered;
         
+        
+        statistics.per_image{statistics.num_images}.covered_area=statistics.per_image{statistics.num_images}.covered_area+area_covered;
+        statistics.per_image{statistics.num_images}.covered_signs=statistics.per_image{statistics.num_images}.covered_signs+sign_inside;
         if (sign_inside==0) && (area_covered>0)
             statistics.partially_covered_signs(end)=statistics.partially_covered_signs(end)+1;
+            statistics.per_image{statistics.num_images}.partially_covered_signs=statistics.per_image{statistics.num_images}.partially_covered_signs+1;
             statistics.partially_covered_signs(sign_category)=statistics.partially_covered_signs(sign_category)+1;
+        end
+        if (sign_inside==0) && (area_covered==0)
+           statistics.per_image{statistics.num_images}.not_covered_signs=statistics.per_image{statistics.num_images}.not_covered_signs+1; 
         end
         
     end

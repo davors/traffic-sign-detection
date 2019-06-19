@@ -13,7 +13,6 @@ if strcmpi(param.general.colorMode,'HSV')
 else
     I = RGB;
 end
-
 % =========== WHITE ======================================================
 % Initial preprocessing
 % I_white = preprocess(I, param.white.initPipeline, param.white.initMethods, param.general.colorMode);
