@@ -41,20 +41,25 @@ param = config();
 % Run detector
 assert(param.general.parallelNumWorkers > 0,'param.general.parallelNumWorkers has to be positive integer.');
 if param.general.parallelNumWorkers > 1
-    [BBoxes, images, ~, folderSave] = runDetectorPar(images, show, saveImage, saveResults);
+    [BBoxes, images, ~, folderSave, A] = runDetectorPar(images, show, saveImage, saveResults);
 else
-    [BBoxes, images, ~, folderSave] = runDetector(images, show, saveImage, saveResults);
+    [BBoxes, images, ~, folderSave, A] = runDetector(images, show, saveImage, saveResults);
 end
 %--------------------------------------------------------------------------
 % Evaluate
 fprintf(1,'Evaluating ...\n');
 ticID = tic();
-% Load annotations once
-annot = load(param.general.annotations);
-annot = annot.ANNOT;
+
+if isempty(A)
+    % Load annotations once
+    annot = load(param.general.annotations);
+    annot = annot.ANNOT;
+    A = annotationsGetByFilename(annot, images, param.general.filterIgnore);
+end
+
 % Compute scores for full bboxes
 BBoxType = 'full';
-[statisticsFull] = score(images, BBoxes, BBoxType ,annot);
+[statisticsFull] = score(images, BBoxes, BBoxType, A);
 timeEvaluation = toc(ticID);
 fprintf(1,'Done type FULL. Time: %f s.\n\n',timeEvaluation);
 
@@ -67,7 +72,7 @@ if strcmpi(param.general.findROIalgorithm, 'dummy')
 else
     % Compute scores for tight bboxes
     BBoxType = 'tight';
-    [statisticsTight] = score(images, BBoxes, BBoxType ,annot);
+    [statisticsTight] = score(images, BBoxes, BBoxType, A);
     timeEvaluation = toc(ticID);
     fprintf(1,'Done type TIGHT. Total evaluation time: %f s.\n\n',timeEvaluation);
 

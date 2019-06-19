@@ -52,14 +52,38 @@ if isempty(file_images)
     file_images = {file_images.name};
 end
 
-if param.general.keepOnlyAnnotated
-    % Keep only files that are annotated
+isFilterImageSize = ~isempty(param.general.imageSize);
+isFilterOnlyAnnotated = param.general.keepOnlyAnnotated;
+isOracle = strcmpi(algorithm,'oracle');
+
+loadAnnotations = isFilterImageSize | isFilterOnlyAnnotated | isOracle;
+
+if loadAnnotations
     annot = load(param.general.annotations);
-    annot = annot.ANNOT;    
-    keepMask = ismember(file_images, {annot.images.file_name});
+    annot = annot.ANNOT;
+end
+
+if isFilterOnlyAnnotated || isFilterImageSize
+    [keepMask,validInd] = ismember(file_images, {annot.images.file_name});    
+    if isFilterImageSize
+        % Filter by image size
+        sizeMask = true(1,numel(validInd));
+        for v = 1:numel(validInd)
+            if validInd(v) == 0
+                continue;
+            end
+            sizeMask(v) = ([annot.images(validInd(v)).height] == param.general.imageSize(1)) & ...
+            ([annot.images(validInd(v)).width] == param.general.imageSize(2));        
+        end    
+        keepMask = keepMask & sizeMask;
+    end
     file_images = file_images(keepMask);
 end
 
+% Load annotations for Oracle
+if isOracle    
+    ANNOT = annotationsGetByFilename(annot,file_images, param.general.filterIgnore);
+end
 
 
 if saveImage || saveResults
@@ -86,7 +110,10 @@ parfor image_i = 1:numImages
     
     ticID = tic();
     % Run detector
-    if strcmpi(algorithm,'dummy')
+    if isOracle
+        [BBtight, BBfull, BW] = findROIoracle(imagePath,param,show,ANNOT{image_i});    
+    
+    elseif strcmpi(algorithm,'dummy')
         [BBtight, BBfull, BW] = findROIdummy(imagePath,param,show);
         
     elseif strcmpi(algorithm,'smarty')

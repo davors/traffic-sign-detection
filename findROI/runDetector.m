@@ -1,4 +1,4 @@
-function [BBoxes, file_images, param, folder_out] = runDetector(file_images,show,saveImage,saveResults)
+function [BBoxes, file_images, param, folder_out, ANNOT] = runDetector(file_images,show,saveImage,saveResults)
 % Pipeline for traffic signs detection and ROI extraction
 % file_images: - cell array of strings with filenames or
 %              - numeric array of image IDs or
@@ -79,6 +79,7 @@ if isFilterOnlyAnnotated || isFilterImageSize
 end
 
 % Load annotations for Oracle
+ANNOT = [];
 if isOracle    
     ANNOT = annotationsGetByFilename(annot,file_images, param.general.filterIgnore);
 end

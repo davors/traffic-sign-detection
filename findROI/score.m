@@ -1,4 +1,4 @@
-function [statistics]=score(file_images, BBox, BBoxType, annot)
+function [statistics]=score(file_images, BBox, BBoxType, A)
 
 % annot: - struct with loaded annotations or
 %        - path to annotations file
@@ -8,23 +8,22 @@ if ~exist('BBoxType','var') || isempty(BBoxType)
 end
 
 param = config();
-if ~exist('annot','var') || isempty(annot)
+if ~exist('annot','var') || isempty(A)
     % Load default annotations defined in config
     annotPath = param.general.annotations;
-    annot = load(annotPath);
-    annot = annot.ANNOT;
-elseif ischar(annot)
+    A = load(annotPath);
+    A = A.ANNOT;
+elseif ischar(A)
     % user provided the path to annotations file. Load it.
-    annot = load(annot);
-    annot = annot.ANNOT;
-else
-    % user provided structure with annotations
-    assert(isstruct(annot),'annot should be struct with annotations.');
+    A = load(A);
+    A = A.ANNOT; 
+end
+
+if ~iscell(A)
+    A = annotationsGetByFilename(A,file_images, param.general.filterIgnore);
 end
 
 warning('off','MATLAB:polyshape:repairedBySimplify');
-
-A = annotationsGetByFilename(annot,file_images, param.general.filterIgnore);
 
 %statistics for every sign category and total
 statistics.covered_signs=zeros(1,201);
@@ -43,7 +42,7 @@ for image_i=1:numel(A)
         continue;
     end
     image_file_name=file_images{image_i};
-    height = A{image_i}.size(2);
+    %height = A{image_i}.size(2);
     
     statistics.num_images=statistics.num_images+1;
     statistics.per_image{statistics.num_images}.file_name=image_file_name;
