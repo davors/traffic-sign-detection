@@ -5,20 +5,22 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'smarty2'; % 'dummy', 'smartyColor', 'smarty', 'smarty2' 
+param.general.findROIalgorithm = 'dummy'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
 param.general.imageFormat = 'jpg';
-%param.general.folderSource = '../data/original';
-param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
+param.general.folderSource = '../data/original';
+%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
+param.general.imageSize = [1080, 1920]; % leave empty to not filter by size. Works together with keepOnlyAnnotated
 param.general.keepOnlyAnnotated = 1;
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 3;
+param.general.parallelNumWorkers = 1;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
 param.roi.num = 3;
+param.roi.fixTightOffset = 1; % enlarge tight bbox by this num. of px
 % top-left positions of default ROIs; WARNING: works only for FHD images
 param.roi.default.imageSize = {[1080 1920], [576 720], [1236 1628]};
 offsets = [50 0 50]; %[53, 12, 29];

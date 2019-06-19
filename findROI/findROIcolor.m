@@ -100,8 +100,8 @@ BWmerged = BWmerged_color;
 
 % =========== RECTANGLE COVERING ==========================================
 % Check for image size
-[imW, imH, ~] = size(RGB);
-sizeInd = cellfun(@(x) (all(x==[imW, imH])), param.roi.default.imageSize, 'UniformOutput', 1);
+[imHeight, imWidth, ~] = size(RGB);
+sizeInd = cellfun(@(x) (all(x==[imHeight, imWidth])), param.roi.default.imageSize, 'UniformOutput', 1);
 if any(sizeInd)
     param.roi.default.pos = param.roi.default.pos{sizeInd};
 else

@@ -86,7 +86,7 @@ for image_i=1:numel(A)
         %loop through all bounding boxes
         for box_i=0:size(BBox_i,2)/8-1
             xb=BBox_i(box_i*8+1:2:box_i*8+8);
-            yb=height-BBox_i(box_i*8+2:2:box_i*8+8);
+            yb=BBox_i(box_i*8+2:2:box_i*8+8);
             
             %check if the sign is inside of the bounding box
             [in, on]=inpolygon(xs,ys,xb,yb);

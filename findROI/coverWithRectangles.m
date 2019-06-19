@@ -133,7 +133,18 @@ for k = 1:K
     end
     
     % Store rectangle (tight bounding box)
-    rectsTight(k,:) = [xMin, yMin, w, h];
+    % Enlarge tight bbox by fixOffset pixels to avoid bad scores due to
+    % polygons overlap
+    fixOffset = param.fixTightOffset; 
+    xMax = xMin + w;
+    yMax = yMin + h;    
+    xMinFix = max(0,xMin-fixOffset);
+    xMaxFix = min(imWidth, xMax+fixOffset);    
+    yMinFix = max(0,yMin-fixOffset);
+    yMaxFix = min(imHeight, yMax+fixOffset);
+    wFix = min(width, xMaxFix - xMinFix);
+    hFix = min(height, yMaxFix - yMinFix);    
+    rectsTight(k,:) = [xMinFix, yMinFix, wFix, hFix];
     
     % Find full sized rectangle (exactly width x height)
     % h and w can be less than height and width of specified rectangle
