@@ -1,6 +1,6 @@
 % Loads and decodes JSON with annotations
 
-jsonPath = '../data/annotations/default/train.json';
+jsonPath = '../data/annotations/default/test.json';
 
 % Read file
 jsonFid = fopen(jsonPath,'r');
