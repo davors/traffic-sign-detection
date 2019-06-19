@@ -68,6 +68,15 @@ numImages = numel(file_images);
 
 
 BBoxes = cell(numImages,1);
+
+% Load annotations for Oracle
+if strcmpi(algorithm,'oracle')    
+    annotPath = param.general.annotations;
+    annot = load(annotPath);
+    annot = annot.ANNOT;
+    ANNOT = annotationsGetByFilename(annot,file_images, param.general.filterIgnore);
+end
+
 % Loop over all files with images
 ticID2 = tic();
 for image_i = 1:numImages
@@ -76,7 +85,10 @@ for image_i = 1:numImages
     
     ticID = tic();
     % Run detector
-    if strcmpi(algorithm,'dummy')
+    if strcmpi(algorithm,'oracle')
+        [BBtight, BBfull, BW] = findROIoracle(imagePath,param,show,ANNOT{image_i});    
+    
+    elseif strcmpi(algorithm,'dummy')
         [BBtight, BBfull, BW] = findROIdummy(imagePath,param,show);
         
     elseif strcmpi(algorithm,'smarty')
