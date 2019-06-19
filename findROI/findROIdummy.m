@@ -5,13 +5,16 @@ if ~exist('showResults','var') || isempty(showResults)
 end
 
 
-% Read file
-RGB = imread(imageFile);
+
 
 % =========== RECTANGLE COVERING ==========================================
 % Check for image size
-[imW, imH, ~] = size(RGB);
-sizeInd = cellfun(@(x) (all(x==[imW, imH])), param.roi.default.imageSize, 'UniformOutput', 1);
+%[imHeight, imWidth, ~] = size(RGB);
+infoImage = imfinfo(imageFile);
+imHeight = infoImage.Height;
+imWidth = infoImage.Width;
+
+sizeInd = cellfun(@(x) (all(x==[imHeight, imWidth])), param.roi.default.imageSize, 'UniformOutput', 1);
 if any(sizeInd)
     param.roi.default.pos = param.roi.default.pos{sizeInd};
 else
@@ -21,10 +24,12 @@ BBoxes = param.roi.default.pos;
 K = size(BBoxes,1);
 BBfull = [BBoxes, repmat(param.roi.size,K,1)];
 BBtight = BBfull;
-BWmerged = false(imW,imH);
+BWmerged = false(imHeight,imWidth);
 CC = [];
 
 if showResults
+    % Read file
+    RGB = imread(imageFile);
     Kreal = size(BBtight,1);
     % Visualize
     figure('units','normalized','OuterPosition',[0 0 1 1]);

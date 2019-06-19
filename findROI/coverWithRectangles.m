@@ -135,7 +135,7 @@ for k = 1:K
     % Store rectangle (tight bounding box)
     % Enlarge tight bbox by fixOffset pixels to avoid bad scores due to
     % polygons overlap
-    fixOffset = 1;    
+    fixOffset = param.fixTightOffset; 
     xMax = xMin + w;
     yMax = yMin + h;    
     xMinFix = max(0,xMin-fixOffset);
