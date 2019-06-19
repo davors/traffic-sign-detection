@@ -5,23 +5,23 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'smartyColor'; % 'dummy', 'smarty', 'smartyColor'
+param.general.findROIalgorithm = 'smarty2'; % 'dummy', 'smartyColor', 'smarty', 'smarty2' 
 param.general.imageFormat = 'jpg';
-param.general.folderSource = '../data/original';
-%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
+%param.general.folderSource = '../data/original';
+param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 param.general.keepOnlyAnnotated = 1;
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 1;
+param.general.parallelNumWorkers = 3;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
 param.roi.num = 3;
 % top-left positions of default ROIs; WARNING: works only for FHD images
 param.roi.default.imageSize = {[1080 1920], [576 720], [1236 1628]};
-offsets = [53, 12, 29];
+offsets = [50 0 50]; %[53, 12, 29];
 param.roi.default.pos = { ...
     [0, offsets(1); ...
     1920/2-param.roi.size(1)/2, offsets(2); ...
@@ -31,6 +31,49 @@ param.roi.default.pos = { ...
     1628/2-param.roi.size(1)/2, offsets(2); ...
     1628-param.roi.size(1), offsets(3)], ...
     }; % empty position means that no default positions are used
+
+% =========== WHITE v2 for findROIv2 ======================================
+param.white2.weight = 50; % weight of white objects
+param.white2.initPipeline = {'heq'}; % any combination of 'cc', 'adj', 'heq'
+param.white2.initMethods.cc = 'none'; % 'white', ['gray'], 'none'
+param.white2.initMethods.heq.type = 'local'; % 'global', ['local'], 'none'
+param.white2.initMethods.heq.numTiles = [9, 16]; % number of tiles [m x n]
+param.white2.initMethods.heq.clipLimit = 0.01;
+param.white2.initMethods.heq.nBins = 64; % quite sensitive
+param.white2.initMethods.heq.range = 'full'; % original, full
+param.white2.initMethods.heq.distribution = 'uniform'; % uniform, rayleigh, exponential
+param.white2.initMethods.adj = [0.3 0.7]; % percantage of input contrast clipping
+
+% HSV thresholds
+thrHSV = [];
+thrHSV.white.Hmin = 0.00;
+thrHSV.white.Hmax = 1.00;
+thrHSV.white.Smin = 0.00;
+thrHSV.white.Smax = 0.35;
+thrHSV.white.Vmin = 0.00;
+thrHSV.white.Vmax = 1.00;
+param.white2.thrHSV = thrHSV;
+
+% Binary masks filtering
+param.white2.maskFilters = {'fill','erode_2'};
+
+% Connected components (blobs) thresholds
+% Size of an area we want to filter out (in pixels)
+thrCC = [];
+thrCC.HeightMin = 25;
+thrCC.WidthMin = 25;
+thrCC.AreaMin = 625;
+thrCC.AreaMax = 30000;
+% Extent filter (extent = area/(height*width))
+thrCC.ExtentMin = 0.1; %0.5
+thrCC.ExtentMax = 1;
+% Aspect ratio (shorter/longer)
+thrCC.AspectMin = 0.15;
+thrCC.AspectMax = 1;
+% Area to squared perimeter ratio
+thrCC.A2PSqMin = 0.021;%0.02;
+thrCC.A2PSqMax = Inf;
+param.white2.thrCC = thrCC;
 
 
 % =========== COLORS ======================================================
@@ -86,11 +129,11 @@ thrHSV.green.Smax = 1.00;
 thrHSV.green.Vmin = 0.20;
 thrHSV.green.Vmax = 1.00;
 
-thrHSV.greenFluor.Hmin = 0.16;
-thrHSV.greenFluor.Hmax = 0.22;
+thrHSV.greenFluor.Hmin = 0.18;
+thrHSV.greenFluor.Hmax = 0.26;
 thrHSV.greenFluor.Smin = 0.70;
 thrHSV.greenFluor.Smax = 1.00;
-thrHSV.greenFluor.Vmin = 0.50;
+thrHSV.greenFluor.Vmin = 0.40;
 thrHSV.greenFluor.Vmax = 1.00;
 
 thrHSV.brown.Hmin = 0.00;
@@ -128,7 +171,8 @@ thrCC.A2PSqMax = Inf;
 param.colors.thrCC = thrCC;
 
 
-% =========== WHITE ======================================================
+
+% =========== WHITE OLD ======================================================
 param.white.weight = 1; % weight of white objects
 param.white.initPipeline = {'heq','adj'}; % any combination of 'cc', 'adj', 'heq'
 param.white.initMethods.cc = 'none'; % 'white', 'gray', 'none'
