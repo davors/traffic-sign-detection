@@ -1,7 +1,9 @@
-function [statistics]=score(file_images, BBox, BBoxType, A)
+function [statistics]=scoreFast(file_images, BBox, BBoxType, A, P)
 
-% annot: - struct with loaded annotations or
-%        - path to annotations file
+% A: - cell with loaded annotations or
+%    - path to annotations file
+% P: - cell of precomputed polyshapes
+
 lastwarn('');
 if ~exist('BBoxType','var') || isempty(BBoxType)
     BBoxType = 'full';
@@ -21,6 +23,13 @@ end
 
 if ~iscell(A)
     A = annotationsGetByFilename(A,file_images, param.general.filterIgnore);
+end
+
+if ~exist('P','var') || isempty(P)
+    % Load precomputed polyshapes, path defined in config
+    pPath = param.general.precomputedPoly;
+    P = load(pPath);
+    P = P.P;
 end
 
 warning('off','MATLAB:polyshape:repairedBySimplify');
@@ -52,6 +61,7 @@ for image_i=1:numel(A)
     statistics.per_image{statistics.num_images}.not_covered_signs=0;
     statistics.per_image{statistics.num_images}.total_area=0;
     
+        
     for sign_i=1:numel(A{image_i}.a)        
         sign_inside=0;
         area_covered=0;
@@ -62,7 +72,11 @@ for image_i=1:numel(A)
         ys=A{image_i}.a(sign_i).segmentation(2:2:end-2);
         
         %convert to polygon and calculate area
-        poly = polyshape(xs,ys);
+        signID = A{image_i}.a(sign_i).id;
+        Pind = P.id == signID;
+        poly = P.polygon{Pind};
+        
+        %poly = polyshape(xs,ys);
         poly_area = area(poly);
         %plot(poly)
         

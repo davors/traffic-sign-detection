@@ -5,17 +5,19 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'oracle'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
+param.general.findROIalgorithm = 'dummy'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
 param.general.imageFormat = 'jpg';
-param.general.folderSource = '../data/original';
-%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
+%param.general.folderSource = '../data/original';
+param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
+param.general.precomputedPoly = []; %'../data/annotations/default/joined_train_test.poly.mat';
+param.general.evaluateBBoxTypes = {'full', 'tight'};
 param.general.imageSize = [1080, 1920]; % leave empty to not filter by size. Works together with keepOnlyAnnotated
 param.general.keepOnlyAnnotated = 1;
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 1;
+param.general.parallelNumWorkers = 4;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];

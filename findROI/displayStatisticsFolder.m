@@ -27,14 +27,24 @@ for f = 1:numFolders
     S = load([resPath,filesep,folderName, filesep, scoreFilename]);
     fprintf(1,'***   %s   ***\n\n', folderName);
     
+    isNewFormat = isfield(S,'statistics');
+    
     if strcmpi(bboxType,'full') || strcmpi(bboxType,'all')
         fprintf(1,'FULL bbox\n');
-        displayStatistics(S.statisticsFull,showByCategory);
+        if isNewFormat
+            displayStatistics(S.statistics.full,showByCategory);
+        else
+            displayStatistics(S.statisticsFull,showByCategory);
+        end
     end
     
     if strcmpi(bboxType,'tight') || strcmpi(bboxType,'all')
         fprintf(1,'%s\nTIGHT bbox\n',repmat('- ',1,50));
-        displayStatistics(S.statisticsTight,showByCategory);
+        if isNewFormat && ~isempty(S.statistics.tight)
+            displayStatistics(S.statistics.tight,showByCategory);
+        else
+            displayStatistics(S.statisticsTight,showByCategory);
+        end
     end
     
     fprintf(1,'%s\n',repmat('=',1,100));

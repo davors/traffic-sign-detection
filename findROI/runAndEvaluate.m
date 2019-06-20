@@ -40,7 +40,7 @@ param = config();
 %--------------------------------------------------------------------------
 % Run detector
 assert(param.general.parallelNumWorkers > 0,'param.general.parallelNumWorkers has to be positive integer.');
-if param.general.parallelNumWorkers > 1
+if param.general.parallelNumWorkers > 1 && ~strcmpi(param.general.findROIalgorithm,'oracle')
     [BBoxes, images, ~, folderSave, A] = runDetectorPar(images, show, saveImage, saveResults);
 else
     [BBoxes, images, ~, folderSave, A] = runDetector(images, show, saveImage, saveResults);
@@ -57,32 +57,52 @@ if isempty(A)
     A = annotationsGetByFilename(annot, images, param.general.filterIgnore);
 end
 
-% Compute scores for full bboxes
-BBoxType = 'full';
-[statisticsFull] = score(images, BBoxes, BBoxType, A);
-timeEvaluation = toc(ticID);
-fprintf(1,'Done type FULL. Time: %f s.\n\n',timeEvaluation);
 
-fprintf("Scores - FULL bboxes\n");
-displayStatistics(statisticsFull);
-fprintf("\n");
+% Load precomputed polyshapes for traffic signs
+P = [];
+if ~isempty(param.general.precomputedPoly)
+    P = load(param.general.precomputedPoly);
+    P = P.P;
+end
 
-if strcmpi(param.general.findROIalgorithm, 'dummy')
-    statisticsTight = statisticsFull;
-else
-    % Compute scores for tight bboxes
-    BBoxType = 'tight';
-    [statisticsTight] = score(images, BBoxes, BBoxType, A);
+BBoxTypes = param.general.evaluateBBoxTypes;
+
+statistics = struct;
+
+for bbType_i = 1:numel(BBoxTypes)
+    
+    BBoxType = BBoxTypes{bbType_i};
+    
+    if strcmpi(param.general.findROIalgorithm, 'dummy') && strcmpi(BBoxType,'tight')
+        fprintf(1,'Dummy + tight bboxes = dummy + full bboxes. Skipping.\n');
+        statistics.BBoxType = [];
+        continue;
+    end
+    
+    if param.general.parallelNumWorkers > 1
+        if isempty(P)
+            statistics.(BBoxType) = scorePar(images, BBoxes, BBoxType, A);
+        else
+            statistics.(BBoxType) = scoreFastPar(images, BBoxes, BBoxType, A, P);
+        end
+    else
+        if isempty(P)
+            statistics.(BBoxType) = score(images, BBoxes, BBoxType, A);
+        else
+            statistics.(BBoxType) = scoreFast(images, BBoxes, BBoxType, A, P);
+        end
+    end
+    
     timeEvaluation = toc(ticID);
-    fprintf(1,'Done type TIGHT. Total evaluation time: %f s.\n\n',timeEvaluation);
-
-    fprintf("Scores - TIGHT bboxes\n");
-    displayStatistics(statisticsTight);
-    fprintf("\n");
+    fprintf(1,'Done type %s. Elapsed evaluation time: %f s.\n\n', upper(BBoxType), timeEvaluation);
+    
+    fprintf("Scores - %s bboxes\n", upper(BBoxType));
+    displayStatistics(statistics.(BBoxType));
+    fprintf("\n");    
 end
 
 %--------------------------------------------------------------------------
 % Save
 if saveResults
-    save([folderSave,filesep,'scores.mat'],'statisticsFull','statisticsTight','timeEvaluation');
+    save([folderSave,filesep,'scores.mat'],'statistics','timeEvaluation');
 end

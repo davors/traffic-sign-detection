@@ -1,4 +1,4 @@
-function [BBoxes, file_images, param, folder_out] = runDetectorPar(file_images,show,saveImage,saveResults)
+function [BBoxes, file_images, param, folder_out, ANNOT] = runDetectorPar(file_images,show,saveImage,saveResults)
 % PARALLEL version
 % Pipeline for traffic signs detection and ROI extraction
 % file_images: - cell array of strings with filenames or
@@ -81,6 +81,7 @@ if isFilterOnlyAnnotated || isFilterImageSize
 end
 
 % Load annotations for Oracle
+ANNOT = [];
 if isOracle    
     ANNOT = annotationsGetByFilename(annot,file_images, param.general.filterIgnore);
 end
@@ -104,6 +105,8 @@ if isempty(currentPool) || currentPool.NumWorkers ~= parallelNumWorkers
     parpool(parallelNumWorkers);
 end
 ticID2 = tic();
+
+
 parfor image_i = 1:numImages
     file_image = file_images{image_i};
     imagePath = [folder_in, filesep, file_image];
@@ -111,7 +114,9 @@ parfor image_i = 1:numImages
     ticID = tic();
     % Run detector
     if isOracle
-        [BBtight, BBfull, BW] = findROIoracle(imagePath,param,show,ANNOT{image_i});    
+        error('Oracle not supported in parallel. Why? Get strange error.');
+        %A = ANNOT{image_i};
+        %[BBtight, BBfull, BW] = findROIoracle(imagePath,param,show,A);    
     
     elseif strcmpi(algorithm,'dummy')
         [BBtight, BBfull, BW] = findROIdummy(imagePath,param,show);
