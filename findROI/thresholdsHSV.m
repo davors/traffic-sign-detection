@@ -55,25 +55,11 @@ if ~exist('tS','var') || isempty(tS)
     tS.brown.Smax = 1.00;
     tS.brown.Vmin = 0.20;
     tS.brown.Vmax = 1.00;
-    
-    tS.black.Hmin = 0.00;
-    tS.black.Hmax = 1.00;
-    tS.black.Smin = 0.00;
-    tS.black.Smax = 1.00;
-    tS.black.Vmin = 0.00;
-    tS.black.Vmax = 0.20;
-    
-    tS.white.Hmin = 0.00;
-    tS.white.Hmax = 1.00;
-    tS.white.Smin = 0.00;
-    tS.white.Smax = 0.25;
-    tS.white.Vmin = 0.80;
-    tS.white.Vmax = 1.00;
 else
     assert(isstruct(tS),'tS has to be a struct.');
 end
 
-[h,w,c] = size(I);
+[h,w,~] = size(I);
 colors = fieldnames(tS);
 numColors = numel(colors);
 

@@ -5,7 +5,7 @@ param = [];
 
 % =========== GENERAL =====================================================
 % Specify folders for input/output
-param.general.findROIalgorithm = 'dummy'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
+param.general.findROIalgorithm = 'smartyColor'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
 param.general.imageFormat = 'jpg';
 %param.general.folderSource = '../data/original';
 param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
@@ -152,6 +152,8 @@ param.colors.thrHSV = thrHSV;
 % Binary masks filtering
 %param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill','dilate_10'};
 param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
+% For smartyColor2
+param.colors2.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
 
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
@@ -160,7 +162,7 @@ thrCC=[];
 thrCC.HeightMin=25;
 thrCC.WidthMin=25;
 
-thrCC.AreaMin = 625;
+thrCC.AreaMin = 5000; % 625
 thrCC.AreaMax = 230000;
 % Extent filter (extent = area/(height*width))
 thrCC.ExtentMin = 0.45;

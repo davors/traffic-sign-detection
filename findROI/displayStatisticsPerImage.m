@@ -22,5 +22,7 @@ for image_i=1:numel(img_stat)
     fprintf(file,"%.1f\t",(img_area/img_total_area)*100);
     fprintf(file,"%.1d\t",img_total); fprintf(file,"\n");
 end
-fclose(file);
+if file > 2
+    fclose(file);
+end
 end
