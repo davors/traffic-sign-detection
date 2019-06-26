@@ -4,9 +4,17 @@ function param = config()
 param = [];
 
 % =========== GENERAL =====================================================
-% Specify folders for input/output
-param.general.findROIalgorithm = 'smartyColor'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
+% Select algorithm for traffic sign detection
+% 'oracle' - known annotations, 100% true
+% 'dummy' - default rectangles positions (defined in param.roi.default.pos) 
+% 'smarty' - detects colors and white patches 
+% 'smarty2' - detects colors and white patches (weighted) - alternative solution
+% 'smartyColor' - detects colors (heavy implementation - each color is processed separately)
+% 'smartyColor2' -  detects colors (light implementation - all color masks are merged)
+% 'smartyColor3' -  detects colors (compromise - color masks are separately processed for small blobs, blue sky and bottom lying objects)
+param.general.findROIalgorithm = 'smartyColor3';
 param.general.imageFormat = 'jpg';
+%param.general.folderSource = '../data/hardSmartyColor';
 %param.general.folderSource = '../data/original';
 param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
@@ -17,13 +25,16 @@ param.general.imageSize = [1080, 1920]; % leave empty to not filter by size. Wor
 param.general.keepOnlyAnnotated = 1;
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 4;
+param.general.parallelNumWorkers = 1;
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
 param.roi.num = 3;
-param.roi.fixTightOffset = 1; % enlarge tight bbox by this num. of px
-% top-left positions of default ROIs; WARNING: works only for FHD images
+param.roi.alignOrigin = 'bottom'; % how to align tight and full bboxes? 'bottom' or 'center'
+param.roi.disableHorizontalMove = 1; % move rectangles only vertically, horizontal position is as in default
+param.roi.allowMiddleFloat = 1; % middle default ROI can move left and right
+param.roi.fixTightOffset = 5; % enlarge tight bbox by this num. of px in every direction
+% top-left positions of default ROIs;
 param.roi.default.imageSize = {[1080 1920], [576 720], [1236 1628]};
 offsets = [50 0 50]; %[53, 12, 29];
 param.roi.default.pos = { ...
@@ -133,11 +144,11 @@ thrHSV.green.Smax = 1.00;
 thrHSV.green.Vmin = 0.20;
 thrHSV.green.Vmax = 1.00;
 
-thrHSV.greenFluor.Hmin = 0.18;
+thrHSV.greenFluor.Hmin = 0.17;
 thrHSV.greenFluor.Hmax = 0.26;
-thrHSV.greenFluor.Smin = 0.70;
+thrHSV.greenFluor.Smin = 0.63;
 thrHSV.greenFluor.Smax = 1.00;
-thrHSV.greenFluor.Vmin = 0.40;
+thrHSV.greenFluor.Vmin = 0.50;
 thrHSV.greenFluor.Vmax = 1.00;
 
 thrHSV.brown.Hmin = 0.00;
@@ -152,8 +163,9 @@ param.colors.thrHSV = thrHSV;
 % Binary masks filtering
 %param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill','dilate_10'};
 param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
-% For smartyColor2
-param.colors2.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
+
+% For smartyColor2 and 3
+param.colors2.maskFilters = {'close_2','fill','gauss_3','close_7','fill','fillWithBorder'};
 
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
@@ -162,16 +174,16 @@ thrCC=[];
 thrCC.HeightMin=25;
 thrCC.WidthMin=25;
 
-thrCC.AreaMin = 5000; % 625
+thrCC.AreaMin = 700; % 625, 5000
 thrCC.AreaMax = 230000;
 % Extent filter (extent = area/(height*width))
-thrCC.ExtentMin = 0.45;
+thrCC.ExtentMin = 0.4; %0.45
 thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;
 thrCC.AspectMax = 1;
 % Area to squared perimeter ration
-thrCC.A2PSqMin = 0.02; %0.02;
+thrCC.A2PSqMin = 0.015; %0.02;
 thrCC.A2PSqMax = Inf;
 
 param.colors.thrCC = thrCC;

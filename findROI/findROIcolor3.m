@@ -1,4 +1,4 @@
-function [BBtight, BBfull, BWmerged, CC] = findROIcolor2(imageFile,param,showResults)
+function [BBtight, BBfull, BWmerged, CC] = findROIcolor3(imageFile,param,showResults)
 
 if ~exist('showResults','var') || isempty(showResults)
     showResults = 0; % show detected regions
@@ -20,8 +20,46 @@ end
 I_col = preprocess(I, param.colors.initPipeline, param.colors.initMethods, param.general.colorMode);
 
 % HSV thresholding
-BWmasks = thresholdsHSV(I_col,param.colors.thrHSV, param.general.colorMode);
-BW = any(BWmasks,3);
+[BWmasks, colors] = thresholdsHSV(I_col,param.colors.thrHSV, param.general.colorMode);
+
+
+% Filter masks by color: clear blue sky, bottom particles, and small particles
+% Filter sky: blue regions that touch the upper border
+blueInd = strcmpi(colors,'blue');
+blueBW = BWmasks(:,:,blueInd);
+blueBW_old = blueBW;
+% erode a little
+blueBW = filterMask(blueBW,{'fill','erode_2'});
+blueCC = bwconncomp(blueBW);
+blueCCprops = regionprops(blueCC,'BoundingBox');
+blueBBoxes = reshape([blueCCprops.BoundingBox],4,blueCC.NumObjects)';
+blueSkyInd = blueBBoxes(:,2) <= 1;
+blueBW(vertcat(blueCC.PixelIdxList{blueSkyInd})) = 0;
+blueBW = filterMask(blueBW,{'dilate_2'});
+BWmasks(:,:,blueInd) = blueBW;
+
+
+% Filter small particles
+thrSmallCC = [];
+thrSmallCC.AreaMin = 100;
+thrSmallCC.WidthMin = 10;
+thrSmallCC.HeightMin = 10;
+thrSmallCC.ExtentMin = 0.10;
+[~,BW,ccOut] = filterConnComp(BWmasks, thrSmallCC);
+BW_old = BW;
+
+% Filter regions that touches bottom border
+bottomCCprops = regionprops(ccOut,'BoundingBox');
+bottomBBoxes = reshape([bottomCCprops.BoundingBox],4,ccOut.NumObjects)';
+bottomInd = (bottomBBoxes(:,2)+bottomBBoxes(:,4)) >= (imHeight-40);
+BW(vertcat(ccOut.PixelIdxList{bottomInd})) = 0;
+
+if showResults > 1
+    figure();
+    montage({blueBW_old, blueBW, any(BWmasks,3), BW_old, BW, RGB},'BorderSize',10,'BackgroundColor','w');
+    waitforbuttonpress;
+    close();
+end
 
 % Filter merged masks
 filters = param.colors2.maskFilters;
@@ -83,8 +121,11 @@ else
     param.roi.default.pos = [];
 end
 
-[BBtight, BBfull, areaLeft] = coverWithRectangles(CC, param.roi);
-% see also: findClusters, placeBoxes
+if param.roi.disableHorizontalMove
+    [BBtight, BBfull, areaLeft] = coverWithRectanglesVertical(CC, param.roi);
+else
+    [BBtight, BBfull, areaLeft] = coverWithRectangles(CC, param.roi);
+end
 
 if showResults
     Kreal = size(BBtight,1);

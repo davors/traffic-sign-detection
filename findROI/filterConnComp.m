@@ -2,6 +2,45 @@ function [BWmask,BWmerged,ccOut,CCs] = filterConnComp(BWmask, thr)
 
 numMasks = size(BWmask,3);
 
+% defaults
+if ~isfield(thr,'AreaMin')
+    thr.AreaMin = 0;
+end
+if ~isfield(thr,'AreaMax')
+    thr.AreaMax = Inf;
+end
+if ~isfield(thr,'ExtentMin')
+    thr.ExtentMin = 0;
+end
+if ~isfield(thr,'ExtentMax')
+    thr.ExtentMax = 1;
+end
+if ~isfield(thr,'AspectMin')
+    thr.AspectMin = 0;
+end
+if ~isfield(thr,'AspectMax')
+    thr.AspectMax = 1;
+end
+if ~isfield(thr,'HeightMin')
+    thr.HeightMin = 0;
+end
+if ~isfield(thr,'HeightMax')
+    thr.HeightMax = Inf;
+end
+if ~isfield(thr,'WidthMin')
+    thr.WidthMin = 0;
+end
+if ~isfield(thr,'WidthMax')
+    thr.WidthMax = Inf;
+end
+if ~isfield(thr,'A2PSqMin')
+    thr.A2PSqMin = -Inf;
+end
+if ~isfield(thr,'A2PSqMax')
+    thr.A2PSqMax = Inf;
+end
+
+
 CCs = cell(1,numMasks);
 
 for m=1:numMasks

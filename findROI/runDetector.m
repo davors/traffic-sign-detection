@@ -117,6 +117,9 @@ for image_i = 1:numImages
     
     elseif strcmpi(algorithm,'smartyColor2')
         [BBtight, BBfull, BW] = findROIcolor2(imagePath,param,show);
+        
+    elseif strcmpi(algorithm,'smartyColor3')
+        [BBtight, BBfull, BW] = findROIcolor3(imagePath,param,show);
     
     else
         error('Wrong findROI algorithm %s.\n',algorithm);
@@ -141,10 +144,12 @@ for image_i = 1:numImages
     
     if saveImage
         RGB = imread(imagePath);
+        [imHeight,imWidth,~] = size(RGB);
         I = imfuse(BW,RGB,'blend');
-        f = figure('visible','off');
+        f = figure('OuterPosition',[0,0,imWidth,imHeight],'units','pixels','visible','off');
+        f.PaperPositionMode = 'auto';
         hold on;
-        imshow(I, 'InitialMagnification',80);
+        imshow(I, 'InitialMagnification','fit');
         K = size(BBfull,1);
         for k = 1: K
             rectangle('Position',BBtight(k,:),'EdgeColor','g','LineWidth',1);

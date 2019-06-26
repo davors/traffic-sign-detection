@@ -13,7 +13,7 @@ if ~exist('showByCategory','var') || isempty(showByCategory)
     showByCategory = 0;
 end
 if ~exist('bboxType','var') || isempty(bboxType)
-    bboxType = 'all';
+    bboxType = 'full';
 end
 
 resFolders = dir(resPath);
@@ -32,7 +32,9 @@ for f = 1:numFolders
     if strcmpi(bboxType,'full') || strcmpi(bboxType,'all')
         fprintf(1,'FULL bbox\n');
         if isNewFormat
-            displayStatistics(S.statistics.full,showByCategory);
+            if isfield(S.statistics,'full') && ~isempty(S.statistics.full)
+                displayStatistics(S.statistics.full,showByCategory);
+            end
         else
             displayStatistics(S.statisticsFull,showByCategory);
         end
@@ -40,8 +42,10 @@ for f = 1:numFolders
     
     if strcmpi(bboxType,'tight') || strcmpi(bboxType,'all')
         fprintf(1,'%s\nTIGHT bbox\n',repmat('- ',1,50));
-        if isNewFormat && ~isempty(S.statistics.tight)
-            displayStatistics(S.statistics.tight,showByCategory);
+        if isNewFormat
+            if isfield(S.statistics,'tight') && ~isempty(S.statistics.tight)
+                displayStatistics(S.statistics.tight,showByCategory);
+            end
         else
             displayStatistics(S.statisticsTight,showByCategory);
         end
