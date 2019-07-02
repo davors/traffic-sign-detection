@@ -1,4 +1,4 @@
-function [rectsTight,rectsFull,areaLeft] = coverWithRectanglesVertical(CC,param)
+function [rectsTight,rectsFull,areaLeft] = coverWithRectanglesVerticalFloatAll(CC,param)
 % Reference: https://stackoverflow.com/questions/32429311/finding-rectangle-position-that-makes-it-cover-maximum-points-in-2d-space
 %
 % defaultPos - top-left corners (K x 2) of default positions of K rectangles of
@@ -29,7 +29,6 @@ end
 
 numBlobs = CC.NumObjects;
 imHeight = CC.ImageSize(1);
-imWidth = CC.ImageSize(2);
 
 weightedMode = isfield(CC,'Weights');
 if ~weightedMode
@@ -54,10 +53,14 @@ BB(:,7) = ones(numBlobs,1);
 rectsTight = zeros(K,4);
 rectsFull = zeros(K,4);
 
-% Move middle default rectangle on the end
+% Move middle default rectangle on the start position -process it first
 dflTmp = defaultPos(2,:);
-defaultPos(2,:) =  defaultPos(end,:);
-defaultPos(end,:) = dflTmp;
+defaultPos(2,:) =  defaultPos(1,:);
+defaultPos(1,:) = dflTmp;
+
+dflTmp = param.floatSize(2);
+param.floatSize(2) = param.floatSize(1);
+param.floatSize(1) = dflTmp;
 
 % Sort points (BB) by x
 BB = sortrows(BB,1,'ascend');
@@ -89,75 +92,40 @@ for k = 1:K
         BBinsideInd = (BBsel(:,2) >= defY) & ((BBsel(:,2)+BBsel(:,4)) <= (defY+height));
         scoreMax = evaluatePosition(BBsel(BBinsideInd,:),pos,CC);
         
-        
-        % If middle rectangle, allow broader limits  
-        % process middle in the end
-        if param.allowMiddleFloat && k==K
-            rectFullMid = pos;
-            pad = width - (defX - defaultPos(1,1));
-            pos = [defX-pad,0,width+2*pad,imHeight];
-            scoreMaxLimit = evaluatePosition(BBsel,pos,CC);
-            
-            if (scoreMax < scoreMaxLimit)
-                % Clear blobs from CC that are outside padded ROI
-                CCmid.NumObjects = numBlobs_k;
-                CCmid.ImageSize = CC.ImageSize;
-                CCmid.Connectivity = CC.Connectivity;
-                CCmid.Weights = CC.Weights(BBsel(:,6));
-                CCmid.PixelIdxList = CC.PixelIdxList(BBsel(:,6));
-                paramMid = [];
-                paramMid.num = 1;
-                paramMid.size = sizeRect;
-                paramMid.default.pos = defaultPos(k,:);
-                paramMid.alignOrigin = 'bottomSpecial';
-                paramMid.fixTightOffset = param.fixTightOffset;
-                [~,rectFullMid] = coverWithRectangles(CCmid,paramMid);
-                % Limits
-                rectFullMid(1) = max(defX-pad, rectFullMid(1));
-                rectFullMid(1) = min(defX+pad, rectFullMid(1));
-            end
-            rectsFull(k,:) = rectFullMid;
-            rectsTight(k,:) = rectsFull(k,:);
-            % Update uncovered flag
-            BB = updateUncoveredFlag(BB,BBsel,rectsFull(k,:));
-            continue;
-        end
-        
-        % Compute upper limit for score
-        pos = [defX,0,width,imHeight];
+        rectFullMid = pos;
+        pad = param.floatSize(k);
+        pos = [defX-pad,0,width+2*pad,imHeight];
         scoreMaxLimit = evaluatePosition(BBsel,pos,CC);
         
-        % Try to get better score, but only if possible
         if (scoreMax < scoreMaxLimit)
-            yTopPrev = -1;
-            for bi=1:numBlobs_k
-                yBottom = BBsel(bi,2)+BBsel(bi,4);
-                yTop = max(0,yBottom-height);
-                if yTop == yTopPrev
-                    % If there is no change in yTop position, skip iteration
-                    continue;
-                end
-                yTopPrev = yTop;
-                yBottom = yTop+height;
-                
-                % Evaluate current position
-                pos = [defX,yTop,width,height];
-                % Evaluate score only on fully covered blobs (TODO: partially covered)
-                BBinsideInd = (BBsel(:,2) >= yTop) & ((BBsel(:,2)+BBsel(:,4)) <= yBottom);
-                score = evaluatePosition(BBsel(BBinsideInd,:),pos,CC);
-                
-                if score > scoreMax
-                    optimalPosY = yTop;
-                    scoreMax = score;
-                end
-            end
+            % Clear blobs from CC that are outside padded ROI
+            CCmid.NumObjects = numBlobs_k;
+            CCmid.ImageSize = CC.ImageSize;
+            CCmid.Connectivity = CC.Connectivity;
+            CCmid.Weights = CC.Weights(BBsel(:,6));
+            CCmid.PixelIdxList = CC.PixelIdxList(BBsel(:,6));
+            paramMid = [];
+            paramMid.num = 1;
+            paramMid.size = sizeRect;
+            paramMid.default.pos = defaultPos(k,:);
+            paramMid.alignOrigin = 'bottomSpecial';
+            paramMid.fixTightOffset = param.fixTightOffset;
+            [~,rectFullMid] = coverWithRectangles(CCmid,paramMid);
+            % Limits
+            rectFullMid(1) = max(defX-pad, rectFullMid(1));
+            rectFullMid(1) = min(defX+pad, rectFullMid(1));
         end
+        rectsFull(k,:) = rectFullMid;
+        rectsTight(k,:) = rectsFull(k,:);
+               
+    else
+        rectsFull(k,:) = [defaultPos(k,1),optimalPosY,width,height];
+        rectsTight(k,:) = rectsFull(k,:);
     end
-    rectsFull(k,:) = [defaultPos(k,1),optimalPosY,width,height];
-    rectsTight(k,:) = rectsFull(k,:);
+    
     % Update uncovered flag
     BB = updateUncoveredFlag(BB,BBsel,rectsFull(k,:));
-            
+    
     
 end
 % Unused variable for now (#nedamise)

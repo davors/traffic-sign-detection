@@ -1,4 +1,4 @@
-function [BBtight, BBfull, BWmerged, CC] = findROIcolor2(imageFile,param,showResults)
+function [BBtight, BBfull, BWmerged, CC] = findROIcolor4(imageFile,param,showResults)
 
 if ~exist('showResults','var') || isempty(showResults)
     showResults = 0; % show detected regions
@@ -20,19 +20,95 @@ end
 I_col = preprocess(I, param.colors.initPipeline, param.colors.initMethods, param.general.colorMode);
 
 % HSV thresholding
-BWmasks = thresholdsHSV(I_col,param.colors.thrHSV, param.general.colorMode);
-BW = any(BWmasks,3);
+[BWmasks, colors] = thresholdsHSV(I_col,param.colors.thrHSV, param.general.colorMode);
 
-% Filter merged masks
+
+% Filter masks by color: clear blue sky, bottom particles, and small particles
+% Filter sky: blue regions that touch the upper border
+blueInd = strcmpi(colors,'blue');
+blueBW = BWmasks(:,:,blueInd);
+blueBW_old = blueBW;
+% erode a little
+blueBW = filterMask(blueBW,{'fill','erode_2'});
+blueCC = bwconncomp(blueBW);
+blueCCprops = regionprops(blueCC,'BoundingBox');
+blueBBoxes = reshape([blueCCprops.BoundingBox],4,blueCC.NumObjects)';
+blueSkyInd = blueBBoxes(:,2) <= 1;
+blueBW(vertcat(blueCC.PixelIdxList{blueSkyInd})) = 0;
+blueBW = filterMask(blueBW,{'dilate_2'});
+BWmasks(:,:,blueInd) = blueBW;
+
+
+% Filter small particles on every color mask on whole image
+% Filter regions that touches bottom border
+thrSmallCC = [];
+thrSmallCC.AreaMin = 300;
+thrSmallCC.WidthMin = 10;
+thrSmallCC.HeightMin = 10;
+thrSmallCC.ExtentMin = 0.10;
+thrSmallCC.ClearBandYMin = imHeight - 40;
+thrSmallCC.ClearBandYMax = Inf;
+BWmasks = filterConnComp(BWmasks, thrSmallCC);
+BW_smallParts = any(BWmasks,3);
+
+% Lower band processing
+lowerBand = (704 + 50); %floor(imHeight*0.667);
+
+% Filter all colors except red and yellows
+colorSelInd = ~ismember(colors,{'red','yellowLight','yellowDark'});
+
+BWmasksSel = any(BWmasks(lowerBand:end,:,colorSelInd),3);
+thrSmallCC = [];
+thrSmallCC.AreaMin = 800;
+thrSmallCC.AreaMax = 30000;
+thrSmallCC.WidthMin = 50;
+thrSmallCC.HeightMin = 50;
+thrSmallCC.ExtentMin = 0.3;
+thrSmallCC.A2PSqMin = 0.021;
+BW_lowerBand = filterConnComp(BWmasksSel, thrSmallCC);
+
+% Get whole image (all colors in upper and selected in lower band)
+BW_oth = any(BWmasks,3);
+BW_oth(lowerBand:end,:) = BW_lowerBand;
+
+% Process red and yellow separately
+BWmasks_RY = any(BWmasks(lowerBand:end,:,~colorSelInd),3);
+thrSmallCC = [];
+thrSmallCC.AreaMin = 500;
+thrSmallCC.AreaMax = 20000;
+thrSmallCC.WidthMin = 30;
+thrSmallCC.HeightMin = 30;
+thrSmallCC.ExtentMin = 0.3;
+thrSmallCC.A2PSqMin = 0.021;
+BWmasks_RY_filt = filterConnComp(BWmasks_RY, thrSmallCC);
+
+% Get whole image (red and yellow)
+BW_RY = any(BWmasks(:,:,~colorSelInd),3);
+BW_RY(lowerBand:end,:) = BWmasks_RY_filt;
+
+
+if showResults > 1
+    figure();
+    montage({blueBW_old, blueBW, any(BWmasks,3), BW_smallParts, BW_oth, BWmasks_RY, BW_RY, RGB},'BorderSize',10,'BackgroundColor','w');
+    waitforbuttonpress;
+    close();
+end
+
+% Filter again
 filters = param.colors2.maskFilters;
-BWfilt = filterMask(BW, filters);
+BWfilt = filterMask(BW_oth, filters);
 
 % Connected components on masks + filtering
-[~, BWmerged_color, CC_color] = filterConnComp(BWfilt, param.colors.thrCC);
+BWmerged_color = filterConnComp(BWfilt, param.colors.thrCC);
+
+% Retain red and yellow blobs in the lower band
+BWmerged_color = BWmerged_color | BW_RY;
+
+CC_color = bwconncomp(BWmerged_color);
 
 if showResults > 1
     figure('units','normalized','OuterPosition',[0,0,1,1]);
-    imshow(imtile(cat(3,BW,BWfilt,BWmerged_color),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
+    imshow(imtile(cat(3,BW_oth,BWfilt,BWmerged_color),'BorderSize',10,'BackgroundColor','w'),'InitialMagnification','fit');
     waitforbuttonpress;
     close();
 end

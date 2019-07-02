@@ -136,6 +136,18 @@ parfor image_i = 1:numImages
     elseif strcmpi(algorithm,'smartyColor3')
         [BBtight, BBfull, BW] = findROIcolor3(imagePath,param,show);
         
+    elseif strcmpi(algorithm,'smartyColor4')
+        [BBtight, BBfull, BW] = findROIcolor4(imagePath,param,show);    
+    
+    elseif strcmpi(algorithm,'smartyColor5')
+        [BBtight, BBfull, BW] = findROIcolor5(imagePath,param,show);
+    
+    elseif strcmpi(algorithm,'smartyColor5_1')
+        [BBtight, BBfull, BW] = findROIcolor5_1(imagePath,param,show);
+    
+    elseif strcmpi(algorithm,'smartyColor5_2')
+        [BBtight, BBfull, BW] = findROIcolor5_2(imagePath,param,show);
+    
     else
         error('Wrong findROI algorithm %s.\n',algorithm);
     end
@@ -173,7 +185,7 @@ parfor image_i = 1:numImages
         saveas(f,savePath,'jpg');
     end
     
-    fprintf(1,'File %s done. Time: %f sec.\n', file_image,  t);
+    fprintf(1,'(%d/%d) %s done. Time: %f sec.\n', image_i, numImages, file_image, t);
 end
 timeDetection = toc(ticID2);
 

@@ -121,8 +121,10 @@ else
     param.roi.default.pos = [];
 end
 
-if param.roi.disableHorizontalMove
+if param.roi.disableHorizontalMove && ~param.roi.allowLeftRightFloat
     [BBtight, BBfull, areaLeft] = coverWithRectanglesVertical(CC, param.roi);
+elseif param.roi.disableHorizontalMove && param.roi.allowLeftRightFloat && param.roi.allowMiddleFloat
+    [BBtight, BBfull, areaLeft] = coverWithRectanglesVerticalFloatAll(CC, param.roi);
 else
     [BBtight, BBfull, areaLeft] = coverWithRectangles(CC, param.roi);
 end

@@ -70,9 +70,19 @@ if strcmpi(colorMode,'RGB')
 end
 
 for ci = 1:numColors
-    color = colors{ci};
-    thr = tS.(color);
+    color = colors{ci};    
+    thres = tS.(color);
     
-    T = [thr.Hmin, thr.Hmax, thr.Smin, thr.Smax, thr.Vmin, thr.Vmax];
-    BWlayers(:,:,ci) = thresholdsHSVmex(I,T);    
+    % Hue around-the-circle thresholds check
+    if thres.Hmin > thres.Hmax
+        BWlayers(:,:,ci) =  ...
+        ( (I(:,:,1) >= thres.Hmin ) | (I(:,:,1) <= thres.Hmax) ) & ...
+        ( (I(:,:,2) >= thres.Smin ) & (I(:,:,2) <= thres.Smax) ) & ...
+        ( (I(:,:,3) >= thres.Vmin ) & (I(:,:,3) <= thres.Vmax) );
+    else
+        BWlayers(:,:,ci) =  ...
+        ((I(:,:,1) >= thres.Hmin ) & (I(:,:,1) <= thres.Hmax)) & ...
+        ((I(:,:,2) >= thres.Smin ) & (I(:,:,2) <= thres.Smax)) & ...
+        ((I(:,:,3) >= thres.Vmin ) & (I(:,:,3) <= thres.Vmax));
+    end        
 end

@@ -21,10 +21,23 @@ mask = [resFolders.isdir] & ~ismember({resFolders.name},{'.','..'});
 folderNames = {resFolders(mask).name};
 numFolders = numel(folderNames);
 
+selectOne = 0;
+if numFolders == 0
+    selectOne = 1;
+    tokens = strsplit(resPath,filesep);
+    folderNames = tokens(end);
+    numFolders = 1;
+end
+
 fprintf(1,'%s\n',repmat('=',1,100));
 for f = 1:numFolders
     folderName = folderNames{f};
-    S = load([resPath,filesep,folderName, filesep, scoreFilename]);
+    if selectOne
+        S = load([resPath,filesep, scoreFilename]);
+    else
+        
+        S = load([resPath,filesep,folderName, filesep, scoreFilename]);
+    end
     fprintf(1,'***   %s   ***\n\n', folderName);
     
     isNewFormat = isfield(S,'statistics');
