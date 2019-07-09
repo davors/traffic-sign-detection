@@ -6,13 +6,6 @@ function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,param)
 % rectangles, use defaultPos to position remaining rectangles, so that
 % there are K rectangles.
 
-% TODO: naive optimistic initialization: 
-% place first rectangle so that the position of its
-% top-left corner is at top-left corner of top-left-most BB. Check if all
-% blobs are covered. If not, place second rectangle in opposite fashion to
-% the right. Again, check for coverage. Repeat until, K rectangles are
-% used.
-
 % Horizontal step: take left-most point and find right one such that
 % rectangle width cover the span
 % Vertical step: find optimal top position that results in coverage with
@@ -21,6 +14,8 @@ function [rectsTight,rectsFull,areaLeft] = coverWithRectangles(CC,param)
 K = param.num;
 sizeRect = param.size;
 defaultPos = param.default.pos;
+alignOrigin = param.alignOrigin; % how to align tight and full bboxes: bottom or center
+
 
 if numel(sizeRect) == 1
     width = sizeRect;
@@ -150,8 +145,46 @@ for k = 1:K
     % h and w can be less than height and width of specified rectangle
     centerX = xMin + w/2;
     centerY = yMin + h/2;
-    xMinFull = centerX - width/2;
-    yMinFull = centerY - height/2;
+    % Align center-center
+    if strcmpi(alignOrigin,'center')        
+        xMinFull = centerX - width/2;
+        yMinFull = centerY - height/2;
+    
+    elseif strcmpi(alignOrigin,'bottomSpecial')
+        % ONLY FOR MIDDLE DEFAULT RECTANGLE - not for general use
+        % Align to left or right side or center of tight box
+        if xMin < defaultPos(k,1)
+            xMinFull = xMin;
+        elseif (xMin+w) > (defaultPos(k,1)+width)
+            xMinFull = xMin+w-width;
+        else
+            % Leave as default
+            xMinFull = defaultPos(k,1);
+        end        
+        yMinFull = yMin - (height - h);
+        
+    % Align bottom-(left,center,right) HARDCODED K=3 FHD version
+    elseif strcmpi(alignOrigin,'bottom')
+        % determine the vertical band of tight bbox (left, center, right)
+        if centerX <= defaultPos(1,1) + width
+            % left
+            xMinFull = xMin - (width - w);
+            yMinFull = yMin - (height - h);                        
+            
+        elseif centerX > defaultPos(1,1) && centerX <= defaultPos(3,1)
+            % center
+            xMinFull = xMin - (width - w)/2;
+            yMinFull = yMin - (height - h);
+            
+        else
+            % right
+            xMinFull = xMin;
+            yMinFull = yMin - (height - h);
+            
+        end
+        
+    end
+    
     if xMinFull < 0
         xMinFull = 0;
     elseif (xMinFull+width) > imWidth
@@ -162,6 +195,8 @@ for k = 1:K
     elseif (yMinFull+height) > imHeight
         yMinFull = imHeight-height;
     end
+    
+    
     % Store rectangle (full bounding box)
     rectsFull(k,:) = [xMinFull, yMinFull, width, height];
     

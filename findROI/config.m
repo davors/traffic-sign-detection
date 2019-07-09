@@ -4,15 +4,23 @@ function param = config()
 param = [];
 
 % =========== GENERAL =====================================================
-% Specify folders for input/output
-param.general.findROIalgorithm = 'dummy'; % 'oracle', 'dummy', 'smartyColor', 'smarty', 'smarty2' 
+% Select algorithm for traffic sign detection
+% 'oracle' - known annotations, 100% true
+% 'dummy' - default rectangles positions (defined in param.roi.default.pos) 
+% 'smarty' - detects colors and white patches 
+% 'smarty2' - detects colors and white patches (weighted) - alternative solution
+% 'smartyColor' - detects colors (heavy implementation - each color is processed separately)
+% 'smartyColor2' -  detects colors (light implementation - all color masks are merged)
+% 'smartyColor3' -  detects colors (compromise - color masks are separately processed for small blobs, blue sky and bottom lying objects)
+param.general.findROIalgorithm = 'smartyColor5_2';
 param.general.imageFormat = 'jpg';
-%param.general.folderSource = '../data/original';
-param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
+%param.general.folderSource = '../data/hardSmartyColor';
+param.general.folderSource = '../data/original';
+%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
-param.general.precomputedPoly = []; %'../data/annotations/default/joined_train_test.poly.mat';
-param.general.evaluateBBoxTypes = {'full', 'tight'};
+param.general.precomputedPoly = '../data/annotations/default/joined_train_test.poly.mat'; % []
+param.general.evaluateBBoxTypes = {'full'}; % {'full', 'tight'}
 param.general.imageSize = [1080, 1920]; % leave empty to not filter by size. Works together with keepOnlyAnnotated
 param.general.keepOnlyAnnotated = 1;
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
@@ -22,14 +30,20 @@ param.general.parallelNumWorkers = 4;
 % =========== ROI =========================================================
 param.roi.size = [704, 704];
 param.roi.num = 3;
-param.roi.fixTightOffset = 1; % enlarge tight bbox by this num. of px
-% top-left positions of default ROIs; WARNING: works only for FHD images
+param.roi.alignOrigin = 'bottom'; % how to align tight and full bboxes? 'bottom' or 'center'
+param.roi.disableHorizontalMove = 1; % move rectangles only vertically, horizontal position is as in default
+param.roi.allowMiddleFloat = 1; % middle default ROI can move left and right
+param.roi.allowLeftRightFloat = 1;
+param.roi.floatSize = [50, 96, 50];
+param.roi.fixTightOffset = 5; % enlarge tight bbox by this num. of px in every direction
+% top-left positions of default ROIs;
 param.roi.default.imageSize = {[1080 1920], [576 720], [1236 1628]};
 offsets = [50 0 50]; %[53, 12, 29];
+offsetLeftRight = 0; % offset from left/right border
 param.roi.default.pos = { ...
-    [0, offsets(1); ...
+    [offsetLeftRight, offsets(1); ...
     1920/2-param.roi.size(1)/2, offsets(2); ...
-    1920-param.roi.size(1), offsets(3)], ...
+    1920-param.roi.size(1)-offsetLeftRight, offsets(3)], ...
     [720/2-param.roi.size(1)/2, 0], ...
     [0, offsets(1); ...
     1628/2-param.roi.size(1)/2, offsets(2); ...
@@ -87,34 +101,34 @@ param.white2.thrCC = thrCC;
 % 'adj' - histogram adjustment
 param.colors.weight = 100; % weight of objects in color
 param.colors.initPipeline = {'heq'}; % any combination of 'cc', 'adj', 'heq'
-param.colors.initMethods.cc = 'none'; % 'white', ['gray'], 'none'
+param.colors.initMethods.cc = 'gray'; % 'white', ['gray'], 'none'
 param.colors.initMethods.heq.type = 'local'; % 'global', ['local'], 'none'
 param.colors.initMethods.heq.numTiles = [9, 16]; % number of tiles [m x n]
 param.colors.initMethods.heq.clipLimit = 0.01;
 param.colors.initMethods.heq.nBins = 64; % quite sensitive
 param.colors.initMethods.heq.range = 'full'; % original, full
 param.colors.initMethods.heq.distribution = 'uniform'; % uniform, rayleigh, exponential
-param.colors.initMethods.adj = [0.3 0.7]; % percantage of input contrast clipping
+param.colors.initMethods.adj = [0.3 0.7]; % percentage of input contrast clipping
 
 % HSV thresholds 
 thrHSV = [];
-thrHSV.red.Hmin = 0.93;
+thrHSV.red.Hmin = 0.915; %0.93
 thrHSV.red.Hmax = 0.03;
-thrHSV.red.Smin = 0.50;
+thrHSV.red.Smin = 0.45; % 0.5
 thrHSV.red.Smax = 1.00;
-thrHSV.red.Vmin = 0.00;
+thrHSV.red.Vmin = 0.10;
 thrHSV.red.Vmax = 1.00;
 
 thrHSV.blue.Hmin = 0.52;
 thrHSV.blue.Hmax = 0.70; %0.7
-thrHSV.blue.Smin = 0.6; %0.6
+thrHSV.blue.Smin = 0.62; %0.6
 thrHSV.blue.Smax = 1.00;
-thrHSV.blue.Vmin = 0.25; %0.2
+thrHSV.blue.Vmin = 0.25; %0.2, 0.25, 0.4
 thrHSV.blue.Vmax = 1.0; %1.0
 
 thrHSV.yellowDark.Hmin = 0.05;
 thrHSV.yellowDark.Hmax = 0.13;
-thrHSV.yellowDark.Smin = 0.64;
+thrHSV.yellowDark.Smin = 0.50; % 0.64, 0.6
 thrHSV.yellowDark.Smax = 1.00;
 thrHSV.yellowDark.Vmin = 0.20;
 thrHSV.yellowDark.Vmax = 1.00;
@@ -126,22 +140,29 @@ thrHSV.yellowLight.Smax = 1.00;
 thrHSV.yellowLight.Vmin = 0.20;
 thrHSV.yellowLight.Vmax = 1.00;
 
-thrHSV.green.Hmin = 0.36;
+thrHSV.green.Hmin = 0.37;
 thrHSV.green.Hmax = 0.50;
-thrHSV.green.Smin = 0.50;
+thrHSV.green.Smin = 0.45;
 thrHSV.green.Smax = 1.00;
-thrHSV.green.Vmin = 0.20;
+thrHSV.green.Vmin = 0.25;
 thrHSV.green.Vmax = 1.00;
 
-thrHSV.greenFluor.Hmin = 0.18;
+thrHSV.greenFluor.Hmin = 0.17;
 thrHSV.greenFluor.Hmax = 0.26;
-thrHSV.greenFluor.Smin = 0.70;
+thrHSV.greenFluor.Smin = 0.63;
 thrHSV.greenFluor.Smax = 1.00;
-thrHSV.greenFluor.Vmin = 0.40;
+thrHSV.greenFluor.Vmin = 0.50;
 thrHSV.greenFluor.Vmax = 1.00;
 
+% thrHSV.brown.Hmin = 0.00;
+% thrHSV.brown.Hmax = 0.1; %0.08
+% thrHSV.brown.Smin = 0.40; % 0.6
+% thrHSV.brown.Smax = 1.00;
+% thrHSV.brown.Vmin = 0.00; %0.2
+% thrHSV.brown.Vmax = 1.00;
+
 thrHSV.brown.Hmin = 0.00;
-thrHSV.brown.Hmax = 0.08;
+thrHSV.brown.Hmax = 0.1;
 thrHSV.brown.Smin = 0.60;
 thrHSV.brown.Smax = 1.00;
 thrHSV.brown.Vmin = 0.20;
@@ -153,6 +174,9 @@ param.colors.thrHSV = thrHSV;
 %param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill','dilate_10'};
 param.colors.maskFilters = {'close_2','fill','gauss_3','close_7','fill'};
 
+% For smartyColor2 and 3
+param.colors2.maskFilters = {'close_2','fill','gauss_3','close_7','fillWithBorder'};
+
 % Connected components (blobs) thresholds
 % Size of an area we want to filter out (in pixels)
 thrCC=[];
@@ -160,16 +184,16 @@ thrCC=[];
 thrCC.HeightMin=25;
 thrCC.WidthMin=25;
 
-thrCC.AreaMin = 625;
-thrCC.AreaMax = 230000;
+thrCC.AreaMin = 500; % 625, 5000
+thrCC.AreaMax = 321100; %230000;
 % Extent filter (extent = area/(height*width))
-thrCC.ExtentMin = 0.45;
+thrCC.ExtentMin = 0.4; %0.45
 thrCC.ExtentMax = 1;
 % Aspect ratio (shorter/longer)
 thrCC.AspectMin = 0.16;
 thrCC.AspectMax = 1;
 % Area to squared perimeter ration
-thrCC.A2PSqMin = 0.02; %0.02;
+thrCC.A2PSqMin = 0.012; %0.02;
 thrCC.A2PSqMax = Inf;
 
 param.colors.thrCC = thrCC;

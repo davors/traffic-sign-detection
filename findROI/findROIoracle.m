@@ -36,7 +36,11 @@ if showResults
     Kreal = size(BBtight,1);
     % Visualize
     L = labelmatrix(CC);
-    Icc = label2rgb(L,repmat([1 1 1],CC.NumObjects,1),'black');
+    if CC.NumObjects == 0
+        Icc = L;
+    else
+        Icc = label2rgb(L,repmat([1 1 1],CC.NumObjects,1),'black');
+    end
     Im_fused = imfuse(Icc, RGB, 'blend');
     figure('units','normalized','OuterPosition',[0 0 1 1]);
     imshow(Im_fused, 'InitialMagnification','fit');

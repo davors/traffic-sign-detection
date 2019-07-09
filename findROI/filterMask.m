@@ -12,7 +12,7 @@ if ischar(filters)
     filters = {filters};
 end
 
-numMasks = size(BWmask,3);
+[imHeight, imWidth, numMasks] = size(BWmask);
 numFilters = numel(filters);
 
 % Filters' parameters
@@ -100,6 +100,14 @@ for m=1:numMasks
             
         elseif strcmpi(filterName,'fill')
             BWmask(:,:,m) = imfill(BWmask(:,:,m),'holes');
+        
+        elseif strcmpi(filterName,'fillWithBorder')
+            % Pad with 1px white border
+            BWpad = padarray(BWmask(:,:,m),[1 1],1);
+            % Make a hole in the bottom (no harm in this)
+            BWpad(imHeight+2,floor((imWidth+2)/2)) = 0;
+            BWpad = imfill(BWpad,'holes');
+            BWmask(:,:,m) = BWpad(2:end-1,2:end-1);
             
         else
             error('Wrong filter name');

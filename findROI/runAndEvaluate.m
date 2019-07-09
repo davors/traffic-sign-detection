@@ -73,8 +73,8 @@ for bbType_i = 1:numel(BBoxTypes)
     
     BBoxType = BBoxTypes{bbType_i};
     
-    if strcmpi(param.general.findROIalgorithm, 'dummy') && strcmpi(BBoxType,'tight')
-        fprintf(1,'Dummy + tight bboxes = dummy + full bboxes. Skipping.\n');
+    if any(strcmpi(param.general.findROIalgorithm, {'dummy','smartyColor3','smartyColor4','smartyColor5'})) && strcmpi(BBoxType,'tight')
+        fprintf(1,'%s + tight bboxes = %s + full bboxes. Skipping.\n',param.general.findROIalgorithm,param.general.findROIalgorithm);
         statistics.BBoxType = [];
         continue;
     end
@@ -98,7 +98,11 @@ for bbType_i = 1:numel(BBoxTypes)
     
     fprintf("Scores - %s bboxes\n", upper(BBoxType));
     displayStatistics(statistics.(BBoxType));
-    fprintf("\n");    
+    fprintf("\n");
+    
+    if saveResults
+        displayStatisticsPerImage(statistics.(BBoxType),[folderSave,filesep,'scoresPerImage_',BBoxType,'.txt']);
+    end
 end
 
 %--------------------------------------------------------------------------

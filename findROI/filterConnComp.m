@@ -2,7 +2,54 @@ function [BWmask,BWmerged,ccOut,CCs] = filterConnComp(BWmask, thr)
 
 numMasks = size(BWmask,3);
 
-CCs = cell(1,numMasks);
+% defaults
+if ~isfield(thr,'AreaMin')
+    thr.AreaMin = 0;
+end
+if ~isfield(thr,'AreaMax')
+    thr.AreaMax = Inf;
+end
+if ~isfield(thr,'ExtentMin')
+    thr.ExtentMin = 0;
+end
+if ~isfield(thr,'ExtentMax')
+    thr.ExtentMax = 1;
+end
+if ~isfield(thr,'AspectMin')
+    thr.AspectMin = 0;
+end
+if ~isfield(thr,'AspectMax')
+    thr.AspectMax = 1;
+end
+if ~isfield(thr,'HeightMin')
+    thr.HeightMin = 0;
+end
+if ~isfield(thr,'HeightMax')
+    thr.HeightMax = Inf;
+end
+if ~isfield(thr,'WidthMin')
+    thr.WidthMin = 0;
+end
+if ~isfield(thr,'WidthMax')
+    thr.WidthMax = Inf;
+end
+if ~isfield(thr,'A2PSqMin')
+    thr.A2PSqMin = -Inf;
+end
+if ~isfield(thr,'A2PSqMax')
+    thr.A2PSqMax = Inf;
+end
+if ~isfield(thr,'ClearBandYMin')
+    thr.ClearBandYMin = -Inf;
+end
+if ~isfield(thr,'ClearBandYMax')
+    thr.ClearBandYMax = -Inf;
+end
+
+
+if nargout > 3
+    CCs = cell(1,numMasks);
+end
 
 for m=1:numMasks
     
@@ -14,8 +61,6 @@ for m=1:numMasks
     
     maskArea = ([stat.Area] >= thr.AreaMin) & ([stat.Area] <= thr.AreaMax);
     maskExtent = ([stat.Extent] >= thr.ExtentMin) & ([stat.Extent] <= thr.ExtentMax);
-    %
-    %centroids = reshape([stat.Centroid],2,cc.NumObjects)';
     bboxes = reshape([stat.BoundingBox],4,cc.NumObjects)';
     bb_width = bboxes(:,3)';
     bb_height = bboxes(:,4)';
@@ -29,7 +74,15 @@ for m=1:numMasks
     A2PSq = [stat.Area]./([stat.Perimeter].^2);
     maskA2PSq = (A2PSq >= thr.A2PSqMin) & (A2PSq <= thr.A2PSqMax);
     
-    mask = maskArea & maskExtent & maskAspect & maskA2PSq & maskDim;
+    % Delete blobs that touch clearBand    
+    bbox_upper = bboxes(:,2);
+    bbox_lower = (bboxes(:,2)+bboxes(:,4));
+    clearBandInd = ...
+        ((bbox_upper >= thr.ClearBandYMin) & (bbox_upper <= thr.ClearBandYMax)) | ...
+        ((bbox_lower >= thr.ClearBandYMin) & (bbox_lower <= thr.ClearBandYMax));
+    maskClearBandY = ~clearBandInd';
+    
+    mask = maskArea & maskExtent & maskAspect & maskA2PSq & maskDim & maskClearBandY;
     
     filtCC = struct();
     filtCC.Connectivity = cc.Connectivity;
@@ -39,7 +92,9 @@ for m=1:numMasks
     
     pixelList = vertcat(filtCC.PixelIdxList{:});
     
-    CCs{m} = filtCC;
+    if nargout > 3
+        CCs{m} = filtCC;
+    end
     BW = false(filtCC.ImageSize);
     BW(pixelList) = true;
     BWmask(:,:,m) = BW;
@@ -48,6 +103,10 @@ end
 
 % Join CCs into one structure
 % Use merged masks and compute conn. comp. once more
-BWmerged = any(BWmask,3);
-ccOut = bwconncomp(BWmerged);
+if nargout > 1
+    BWmerged = any(BWmask,3);
+end
+if nargout > 2
+    ccOut = bwconncomp(BWmerged);
+end
 
