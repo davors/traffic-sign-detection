@@ -100,6 +100,16 @@ for m=1:numMasks
             
         elseif strcmpi(filterName,'fill')
             BWmask(:,:,m) = imfill(BWmask(:,:,m),'holes');
+            
+        elseif strcmpi(filterName,'reconstruct')
+            if isempty(filterParam)
+                p = seSize_dilate;
+            else
+                p = str2double(filterParam);
+            end
+            se = strel(se_dilate,p);
+            marker = imerode(BWmask(:,:,m),se);
+            BWmask(:,:,m) = imreconstruct(marker,BWmask(:,:,m));
         
         elseif strcmpi(filterName,'fillWithBorder')
             % Pad with 1px white border

@@ -97,7 +97,7 @@ for bbType_i = 1:numel(BBoxTypes)
     fprintf(1,'Done type %s. Elapsed evaluation time: %f s.\n\n', upper(BBoxType), timeEvaluation);
     
     fprintf("Scores - %s bboxes\n", upper(BBoxType));
-    displayStatistics(statistics.(BBoxType));
+    displayStatistics(statistics.(BBoxType),0);
     fprintf("\n");
     
     if saveResults

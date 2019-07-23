@@ -148,6 +148,12 @@ parfor image_i = 1:numImages
     elseif strcmpi(algorithm,'smartyColor5_2')
         [BBtight, BBfull, BW] = findROIcolor5_2(imagePath,param,show);
     
+    elseif strcmpi(algorithm,'smartyColor5_3')
+        [BBtight, BBfull, BW] = findROIcolor5_3(imagePath,param,show);
+    
+    elseif strcmpi(algorithm,'smartyColor5_4')
+        [BBtight, BBfull, BW] = findROIcolor5_4(imagePath,param,show);
+    
     else
         error('Wrong findROI algorithm %s.\n',algorithm);
     end

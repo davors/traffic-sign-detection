@@ -16,13 +16,16 @@ else
 end
 
 % =========== COLORS ======================================================
-% Initial preprocessing
+% Initial preprocessing (CLAHE)
 I_col = preprocess(I, param.colors.initPipeline, param.colors.initMethods, param.general.colorMode);
 
 % HSV thresholding
 [BWmasks, colors] = thresholdsHSV(I_col,param.colors.thrHSV, param.general.colorMode);
 
-% Fill all masks
+
+%--------------------------------------------------------------------------
+% Fill all masks (holes)
+%--------------------------------------------------------------------------
 if showResults > 1
     BWmasks_after_thresholdHSV = any(BWmasks,3);
 end
@@ -30,12 +33,17 @@ BWmasks = filterMask(BWmasks,{'fill'});
 if showResults > 1
     BWmasks_after_fill = any(BWmasks,3);
 end
+%--------------------------------------------------------------------------
 
-% Lower band processing
+
+% Lower band of the image
 lowerBand = (704 + 50);
 
-% Filter masks by color: clear blue sky, bottom particles, and small particles
-% Filter sky: blue regions that touch the upper border
+%--------------------------------------------------------------------------
+% REMOVE BLUE SKY
+% = blue regions that touch the upper border
+% Erosion -> CC filter (blob area) -> dilation 
+%-------------------------------------------------------------------------- 
 blueInd = strcmpi(colors,'blue');
 blueBW = BWmasks(:,:,blueInd);
 if showResults > 1
@@ -54,9 +62,11 @@ blueBW = filterMask(blueBW,{'dilate_2'});
 BWmasks(:,:,blueInd) = blueBW;
 
 
+%-------------------------------------------------------------------------- 
 % GLOBAL
-% Filter small/big particles on every color mask on whole image
+% CC filtering on every color mask on a whole image size
 % Filter regions that touches bottom border
+%-------------------------------------------------------------------------- 
 thrCC = [];
 thrCC.AreaMin = 300;
 thrCC.AreaMax = 321100;
@@ -73,15 +83,19 @@ if showResults > 1
 end
 filters = {'close_10','fillWithBorder'};
 BWmasks = filterMask(BWmasks, filters);
+%-------------------------------------------------------------------------- 
 
-% Special cases for blobs area in different colors
+
+
+%-------------------------------------------------------------------------- 
+% SPECIFIC CC filtering by colors
 % GREEN + GREEN FLUOR
 greenInd = ismember(colors,{'green','greenFluor'});
 thrCC = [];
 thrCC.AreaMin = 1000;
 thrCC.AreaMax = 198000;
 thrCC.AspectMin = 0.0;
-thrCC.ClearBandYMin = lowerBand;
+thrCC.ClearBandYMin = lowerBand; % remove everything green in lower band
 thrCC.ClearBandYMax = Inf;
 BWmasks(:,:,greenInd) = filterConnComp(BWmasks(:,:,greenInd), thrCC);
 
@@ -105,10 +119,11 @@ thrCC.AreaMax = 50000;
 thrCC.ExtentMin = 0.20;
 thrCC.A2PSqMin = 0.012;
 BWmasks(:,:,brownInd) = filterConnComp(BWmasks(:,:,brownInd), thrCC);
+%-------------------------------------------------------------------------- 
 
-%-------------------------------------------------------
 
-% OTHER: Filter all colors except red and yellows
+
+% OTHER: Filter all colors except red and yellows (so, blue, green, greenFluor)
 colorOthInd = ~ismember(colors,{'red','yellowLight','yellowDark','brown'});
 % OTHER: whole image
 BW_oth = any(BWmasks(:,:,colorOthInd),3);
@@ -139,7 +154,7 @@ BW_oth(lowerBand:end,:) = BW_oth_lower;
 
 
 % RED, YELLOW, BROWN
-% Process red and yellow separately
+% Process red, brown, and yellow separately
 BWmasks_RY = any(BWmasks(:,:,~colorOthInd),3);
 %BWmasks_RY = filterMask(BWmasks_RY,{'close_10','fillWithBorder'});
 % Upper band
@@ -153,7 +168,6 @@ thrCC.ExtentMin = 0.2;
 thrCC.AspectMin = 0.1;
 thrCC.A2PSqMin = 0.017;
 BWmasks_RY_up_filt = filterConnComp(BWmasks_RY_up, thrCC);
-
 % Lower band
 BWmasks_RY_low = BWmasks_RY(lowerBand:end,:);
 thrCC = [];
@@ -170,7 +184,7 @@ BW_RY = [BWmasks_RY_up_filt; BWmasks_RY_low_filt];
 
 
 
-% Add red and yellow blobs
+% Add red and yellow blobs in the upper part back
 redMask(lowerBand:end,:) = 0;
 BWmerged = BW_oth | BW_RY | redMask;
 BWmerged = filterMask(BWmerged,{'fillWithBorder'});

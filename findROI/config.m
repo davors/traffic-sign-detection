@@ -12,11 +12,10 @@ param = [];
 % 'smartyColor' - detects colors (heavy implementation - each color is processed separately)
 % 'smartyColor2' -  detects colors (light implementation - all color masks are merged)
 % 'smartyColor3' -  detects colors (compromise - color masks are separately processed for small blobs, blue sky and bottom lying objects)
-param.general.findROIalgorithm = 'smartyColor5_2';
+param.general.findROIalgorithm = 'smartyColor5_4';
 param.general.imageFormat = 'jpg';
-%param.general.folderSource = '../data/hardSmartyColor';
-param.general.folderSource = '../data/original';
-%param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
+%param.general.folderSource = '../data/original';
+param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 param.general.precomputedPoly = '../data/annotations/default/joined_train_test.poly.mat'; % []
@@ -34,7 +33,8 @@ param.roi.alignOrigin = 'bottom'; % how to align tight and full bboxes? 'bottom'
 param.roi.disableHorizontalMove = 1; % move rectangles only vertically, horizontal position is as in default
 param.roi.allowMiddleFloat = 1; % middle default ROI can move left and right
 param.roi.allowLeftRightFloat = 1;
-param.roi.floatSize = [50, 96, 50];
+param.roi.processingOrder = [3 2 1]; % order of ROIs positioning
+param.roi.floatSize = [50, 96, 50]; %[50, 96, 50];
 param.roi.fixTightOffset = 5; % enlarge tight bbox by this num. of px in every direction
 % top-left positions of default ROIs;
 param.roi.default.imageSize = {[1080 1920], [576 720], [1236 1628]};
@@ -112,12 +112,22 @@ param.colors.initMethods.adj = [0.3 0.7]; % percentage of input contrast clippin
 
 % HSV thresholds 
 thrHSV = [];
-thrHSV.red.Hmin = 0.915; %0.93
+
+% Default
+thrHSV.red.Hmin = 0.915;
 thrHSV.red.Hmax = 0.03;
-thrHSV.red.Smin = 0.45; % 0.5
+thrHSV.red.Smin = 0.45;
 thrHSV.red.Smax = 1.00;
 thrHSV.red.Vmin = 0.10;
 thrHSV.red.Vmax = 1.00;
+
+% alt 
+% thrHSV.red.Hmin = 0.915;
+% thrHSV.red.Hmax = 0.045; %0.03
+% thrHSV.red.Smin = 0.45;
+% thrHSV.red.Smax = 1.00;
+% thrHSV.red.Vmin = 0.10;
+% thrHSV.red.Vmax = 1.00;
 
 thrHSV.blue.Hmin = 0.52;
 thrHSV.blue.Hmax = 0.70; %0.7
@@ -126,13 +136,22 @@ thrHSV.blue.Smax = 1.00;
 thrHSV.blue.Vmin = 0.25; %0.2, 0.25, 0.4
 thrHSV.blue.Vmax = 1.0; %1.0
 
+% default
+% thrHSV.yellowDark.Hmin = 0.05;
+% thrHSV.yellowDark.Hmax = 0.13;
+% thrHSV.yellowDark.Smin = 0.50; % 0.64, 0.6
+% thrHSV.yellowDark.Smax = 1.00;
+% thrHSV.yellowDark.Vmin = 0.20;
+% thrHSV.yellowDark.Vmax = 1.00;
+
 thrHSV.yellowDark.Hmin = 0.05;
 thrHSV.yellowDark.Hmax = 0.13;
-thrHSV.yellowDark.Smin = 0.50; % 0.64, 0.6
+thrHSV.yellowDark.Smin = 0.60;
 thrHSV.yellowDark.Smax = 1.00;
-thrHSV.yellowDark.Vmin = 0.20;
+thrHSV.yellowDark.Vmin = 0.30;
 thrHSV.yellowDark.Vmax = 1.00;
 
+% default
 thrHSV.yellowLight.Hmin = 0.13;
 thrHSV.yellowLight.Hmax = 0.18;
 thrHSV.yellowLight.Smin = 0.64;
@@ -161,12 +180,21 @@ thrHSV.greenFluor.Vmax = 1.00;
 % thrHSV.brown.Vmin = 0.00; %0.2
 % thrHSV.brown.Vmax = 1.00;
 
+% default
+% thrHSV.brown.Hmin = 0.00;
+% thrHSV.brown.Hmax = 0.1;
+% thrHSV.brown.Smin = 0.60;
+% thrHSV.brown.Smax = 1.00;
+% thrHSV.brown.Vmin = 0.20;
+% thrHSV.brown.Vmax = 1.00;
+
 thrHSV.brown.Hmin = 0.00;
 thrHSV.brown.Hmax = 0.1;
-thrHSV.brown.Smin = 0.60;
+thrHSV.brown.Smin = 0.65; %0.65
 thrHSV.brown.Smax = 1.00;
-thrHSV.brown.Vmin = 0.20;
+thrHSV.brown.Vmin = 0.50; %0.5
 thrHSV.brown.Vmax = 1.00;
+
 
 param.colors.thrHSV = thrHSV;
 

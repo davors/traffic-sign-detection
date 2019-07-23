@@ -53,14 +53,10 @@ BB(:,7) = ones(numBlobs,1);
 rectsTight = zeros(K,4);
 rectsFull = zeros(K,4);
 
-% Move middle default rectangle on the start position -process it first
-dflTmp = defaultPos(2,:);
-defaultPos(2,:) =  defaultPos(1,:);
-defaultPos(1,:) = dflTmp;
+% Consider processing order of rects
+defaultPos = defaultPos(param.processingOrder,:);
+param.floatSize = param.floatSize(param.processingOrder);
 
-dflTmp = param.floatSize(2);
-param.floatSize(2) = param.floatSize(1);
-param.floatSize(1) = dflTmp;
 
 % Sort points (BB) by x
 BB = sortrows(BB,1,'ascend');
