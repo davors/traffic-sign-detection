@@ -12,19 +12,21 @@ param = [];
 % 'smartyColor' - detects colors (heavy implementation - each color is processed separately)
 % 'smartyColor2' -  detects colors (light implementation - all color masks are merged)
 % 'smartyColor3' -  detects colors (compromise - color masks are separately processed for small blobs, blue sky and bottom lying objects)
+% ...
+% 'smartyColor5_4' - the latest, the basis for a GPU implementation
 param.general.findROIalgorithm = 'smartyColor5_4';
-param.general.imageFormat = 'jpg';
-%param.general.folderSource = '../data/original';
+param.general.parallelNumWorkers = 1; % How many jobs to run in parallel (MATLAB parfor)
+%param.general.folderSource = '../data/original'; % Sample dataset for the pipeline testing only
 param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
 param.general.annotations = '../data/annotations/default/joined_train_test.mat';
 param.general.precomputedPoly = '../data/annotations/default/joined_train_test.poly.mat'; % []
 param.general.evaluateBBoxTypes = {'full'}; % {'full', 'tight'}
 param.general.imageSize = [1080, 1920]; % leave empty to not filter by size. Works together with keepOnlyAnnotated
-param.general.keepOnlyAnnotated = 1;
+param.general.keepOnlyAnnotated = 1; % consider only images that have valid annotations
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
-param.general.parallelNumWorkers = 4;
+param.general.imageFormat = 'jpg';
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];

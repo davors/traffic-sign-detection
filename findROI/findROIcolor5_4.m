@@ -49,6 +49,8 @@ I_col = preprocess(I, param.colors.initPipeline, param.colors.initMethods, param
 %   blue = blue
 %
 % Crop the bottom part of an image, where we do not expect anything useful.
+% TODO: Perform cropping at the very beginning of pipeline, before
+% color-model conversion.
 %--------------------------------------------------------------------------
 %redInd = ismember(colors,{'red'});
 redInd = ismember(colors,{'red','brown'});
@@ -182,7 +184,6 @@ CC_r_low = filterConnComp2(CC_r_low, thrCC);
 % GREEN
 % Get connected components
 CC_g = bwconncomp(BW_g);
-% Split on upper and lower blobs, add bboxes to CC struct
 % In 5_2 version we removed everything green in lower band, so no spliting
 % is necessary.
 %[CC_g_up, CC_g_low]= splitUpperLower(CC_g, lowerBand);
