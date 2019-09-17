@@ -14,8 +14,9 @@ param = [];
 % 'smartyColor3' -  detects colors (compromise - color masks are separately processed for small blobs, blue sky and bottom lying objects)
 % ...
 % 'smartyColor5_4' - the latest, the basis for a GPU implementation
-param.general.findROIalgorithm = 'smartyColor5_4';
-param.general.parallelNumWorkers = 1; % How many jobs to run in parallel (MATLAB parfor)
+param.general.findROIalgorithm = 'smartyColor6_1';
+param.general.parallelNumWorkers = 4; % How many jobs to run in parallel (MATLAB parfor)
+param.general.resizeInputByFactor = 1; % Only v6: Rescaling input image? Put 1 to skip it.
 %param.general.folderSource = '../data/original'; % Sample dataset for the pipeline testing only
 param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
