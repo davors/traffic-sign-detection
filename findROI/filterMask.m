@@ -1,4 +1,4 @@
-function BWmask = filterMask(BWmask, filters)
+function BWmask = filterMask(BWmask, filters, param)
 % Available filters/operations: 
 % 'median': median filtering
 % 'gauss': gaussian filtering/blurring
@@ -12,25 +12,25 @@ if ischar(filters)
     filters = {filters};
 end
 
+if ~exist('param','var') || isempty(param)
+   % Shape of a morphological structuring element
+   se_shape = 'square';
+else
+   se_shape = param.morphfilters.se_shape;
+end
+
 [imHeight, imWidth, numMasks] = size(BWmask);
 numFilters = numel(filters);
 
 % Filters' parameters
 medianFiltSize = [3 3]; % default [3 3]
 gaussFiltSigma = 3; % default 0.5
-% Shape of a morphological structuring element for image dilation
-se_dilate = 'disk';
 % Size of a morphological structuring element for image dilation
-seSize_dilate = 9;
-% Shape of a morphological structuring element for image closing
-se_close = 'disk';
+seSize_dilate = 18;
 % Size of a morphological structuring element for image closing
-seSize_close = 9;
-% Shape of a morphological structuring element for image opening
-se_open = 'disk';
+seSize_close = 18;
 % Size of a morphological structuring element for image opening
-seSize_open = 3;
-
+seSize_open = 6;
 
 
 for m=1:numMasks
@@ -68,7 +68,7 @@ for m=1:numMasks
             else
                 p = str2double(filterParam);
             end
-            se = strel(se_dilate,p);
+            se = strel(se_shape,p);
             BWmask(:,:,m) = imdilate(BWmask(:,:,m),se);
             
         elseif strcmpi(filterName,'erode')
@@ -77,7 +77,7 @@ for m=1:numMasks
             else
                 p = str2double(filterParam);
             end
-            se = strel(se_dilate,p);
+            se = strel(se_shape,p);
             BWmask(:,:,m) = imerode(BWmask(:,:,m),se);
             
         elseif strcmpi(filterName,'close')
@@ -86,7 +86,7 @@ for m=1:numMasks
             else
                 p = str2double(filterParam);
             end
-            se = strel(se_close,p);
+            se = strel(se_shape,p);
             BWmask(:,:,m) = imclose(BWmask(:,:,m),se);
             
         elseif strcmpi(filterName,'open')
@@ -95,7 +95,7 @@ for m=1:numMasks
             else
                 p = str2double(filterParam);
             end
-            se = strel(se_open,p);
+            se = strel(se_shape,p);
             BWmask(:,:,m) = imopen(BWmask(:,:,m),se);
             
         elseif strcmpi(filterName,'fill')
@@ -107,7 +107,7 @@ for m=1:numMasks
             else
                 p = str2double(filterParam);
             end
-            se = strel(se_dilate,p);
+            se = strel(se_shape,p);
             marker = imerode(BWmask(:,:,m),se);
             BWmask(:,:,m) = imreconstruct(marker,BWmask(:,:,m));
         

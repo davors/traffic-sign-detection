@@ -16,7 +16,7 @@ param = [];
 % 'smartyColor5_4' - the latest, the basis for a GPU implementation
 param.general.findROIalgorithm = 'smartyColor6_1';
 param.general.parallelNumWorkers = 4; % How many jobs to run in parallel (MATLAB parfor)
-param.general.resizeInputByFactor = 1; % Only v6: Rescaling input image? Put 1 to skip it.
+param.general.resizeInputByFactor = 0.5; % Only v6: Rescaling input image? Put 1 to skip it.
 %param.general.folderSource = '../data/original'; % Sample dataset for the pipeline testing only
 param.general.folderSource = '../../../datasets/DFGTSD/DFGTSD_vicos/1920_1080';
 param.general.folderResults = '../data/results';
@@ -28,6 +28,12 @@ param.general.keepOnlyAnnotated = 1; % consider only images that have valid anno
 param.general.filterIgnore = 1; % filter out annotations with ignore flag
 param.general.colorMode = 'HSV';
 param.general.imageFormat = 'jpg';
+
+% =========== MORPH FILTERS ===============================================
+param.morphfilters.se_shape = 'square';
+param.morphfilters.se_size_reconstruct = 8; % 4 for disc
+param.morphfilters.se_size_close = 20; % 10 for disc
+
 
 % =========== ROI =========================================================
 param.roi.size = [704, 704];

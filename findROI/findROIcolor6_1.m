@@ -22,8 +22,8 @@ lowerBand = round((param.roi.size(2) + 50) * scale);
 blueSkyPixelsLimit = 50*scale;
 
 % Filters for morphological image processing
-reconstruct_size = 4*scale;
-close_size = 10*scale;
+reconstruct_size = param.morphfilters.se_size_reconstruct *scale;
+close_size = param.morphfilters.se_size_close *scale;
 morphFilters = {['reconstruct_',num2str(reconstruct_size)],...
     ['close_',num2str(close_size)],'fillWithBorder'};
 
@@ -90,10 +90,10 @@ end
 %   - ...
 %   - Fill holes
 %--------------------------------------------------------------------------
-BW_r = filterMask(BW_r,morphFilters);
-BW_g = filterMask(BW_g,morphFilters);
-BW_y = filterMask(BW_y,morphFilters);
-BW_b = filterMask(BW_b,morphFilters);
+BW_r = filterMask(BW_r,morphFilters,param);
+BW_g = filterMask(BW_g,morphFilters,param);
+BW_y = filterMask(BW_y,morphFilters,param);
+BW_b = filterMask(BW_b,morphFilters,param);
 
 if showResults > 1
     BW_r_fill = BW_r;
