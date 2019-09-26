@@ -27,10 +27,6 @@ else
     error('sizeRect can contain 1 or 2 elements.');
 end
 
-if ~exist('defaultPos','var')
-    defaultPos = [];
-end
-
 
 numBlobs = CC.NumObjects;
 imHeight = CC.ImageSize(1);

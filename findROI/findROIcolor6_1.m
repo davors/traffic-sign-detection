@@ -13,7 +13,7 @@ rs_method = 'nearest';
 rs_antialias = false;
 
 % Crop bottom part of the image (px)
-cropBottom = 24;
+cropBottom = 24*scale; % TODO: try 40px
 
 % Lower band of the image
 lowerBand = round((param.roi.size(2) + 50) * scale);
